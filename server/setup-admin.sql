@@ -1,4 +1,4 @@
--- Setup Admin Account for Abie Garage
+-- Setup Admin Account for My Abe Garage
 -- Run this script in your MySQL database
 
 -- First, make sure the roles exist
