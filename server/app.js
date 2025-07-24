@@ -12,16 +12,21 @@ const cors = require("cors");
 // ` import dotenv
 require("dotenv").config();
 
-// Configure CORS for production
+// Configure CORS for production - Allow all origins for development
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? [
-        process.env.FRONTEND_URL,
-        'http://localhost:5173'
+        process.env.FRONTEND_URL || 'http://localhost:5173',
+        'http://localhost:5173',
+        'https://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://192.168.1.72:5173'
       ]
-    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174'],
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'https://localhost:5173', 'http://127.0.0.1:5173', 'http://192.168.1.72:5173'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 // Enable CORS middleware
