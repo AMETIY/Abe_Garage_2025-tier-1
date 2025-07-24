@@ -16,9 +16,6 @@ require("dotenv").config();
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? [
-        'https://abe-garage-by-meti.vercel.app',
-        'https://abe-garage-5qal.vercel.app',
-        'https://abe-garage-meti.vercel.app',
         process.env.FRONTEND_URL,
         'http://localhost:5173'
       ]
