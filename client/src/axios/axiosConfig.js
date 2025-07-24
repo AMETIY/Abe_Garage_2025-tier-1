@@ -8,7 +8,7 @@ if (import.meta.env.VITE_API_URL) {
   api_url = import.meta.env.VITE_API_URL;
 } else {
   // Fallback to production URL
-  api_url = "https://abe-garage-2025-tier-1.onrender.com";
+  api_url = "https://abe-garage-2025-tier-1.onrender.com/";
 }
 
 console.log("🌐 Using API URL:", api_url);

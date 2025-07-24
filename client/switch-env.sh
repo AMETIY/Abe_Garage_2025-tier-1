@@ -15,11 +15,11 @@ if [ "$1" = "dev" ] || [ "$1" = "development" ]; then
     echo "🌐 Frontend URL: http://localhost:5173"
 elif [ "$1" = "prod" ] || [ "$1" = "production" ]; then
     echo "🚀 Switching to PRODUCTION environment..."
-    echo "VITE_API_URL=https://abe-garage-2025-tier-1.onrender.com" > .env.local
+    echo "VITE_API_URL=https://abe-garage-2025-tier-1.onrender.com/" > .env.local
     echo "VITE_ENV=production" >> .env.local
     echo "VITE_FRONTEND_URL=http://localhost:5173" >> .env.local
     echo "✅ Switched to production environment"
-    echo "🌐 API URL: https://abe-garage-2025-tier-1.onrender.com"
+    echo "🌐 API URL: https://abe-garage-2025-tier-1.onrender.com/"
     echo "🌐 Frontend URL: http://localhost:5173"
 else
     echo "❌ Invalid environment specified"
