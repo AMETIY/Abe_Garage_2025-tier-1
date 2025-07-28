@@ -1,0 +1,60 @@
+/* Font Optimizer Styles */
+.font-optimizer {
+  transition: opacity 0.3s ease;
+}
+
+.font-optimizer.fonts-loaded {
+  opacity: 1;
+}
+
+.font-optimizer:not(.fonts-loaded) {
+  opacity: 0.8;
+}
+
+/* Use system fonts instead of problematic custom fonts */
+@font-face {
+  font-family: "SystemFont";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("-apple-system"), local("BlinkMacSystemFont"), local("Segoe UI"),
+    local("Roboto"), local("Oxygen"), local("Ubuntu"), local("Cantarell"),
+    local("Fira Sans"), local("Droid Sans"), local("Helvetica Neue"),
+    local("sans-serif");
+}
+
+@font-face {
+  font-family: "SystemFont";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("-apple-system"), local("BlinkMacSystemFont"), local("Segoe UI"),
+    local("Roboto"), local("Oxygen"), local("Ubuntu"), local("Cantarell"),
+    local("Fira Sans"), local("Droid Sans"), local("Helvetica Neue"),
+    local("sans-serif");
+}
+
+@font-face {
+  font-family: "SystemFont";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: local("-apple-system"), local("BlinkMacSystemFont"), local("Segoe UI"),
+    local("Roboto"), local("Oxygen"), local("Ubuntu"), local("Cantarell"),
+    local("Fira Sans"), local("Droid Sans"), local("Helvetica Neue"),
+    local("sans-serif");
+}
+
+/* Optimize font rendering for different devices */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .font-optimizer {
+    text-rendering: optimizeSpeed;
+  }
+}
+
+/* Reduce font loading impact on mobile */
+@media (max-width: 768px) {
+  .font-optimizer {
+    font-display: optional;
+  }
+}

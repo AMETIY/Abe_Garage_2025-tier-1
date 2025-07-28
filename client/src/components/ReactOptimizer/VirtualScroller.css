@@ -1,0 +1,148 @@
+.virtual-scroller {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.virtual-scroller-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.virtual-scroller-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.virtual-scroller-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.virtual-scroller-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.virtual-scroller-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.virtual-scroller-items {
+  position: relative;
+  will-change: transform;
+}
+
+.virtual-scroller-item {
+  position: relative;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.virtual-scroller-item:hover {
+  background-color: #f8f9fa;
+}
+
+.virtual-scroller-item:last-child {
+  border-bottom: none;
+}
+
+.virtual-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.virtual-list-item:hover {
+  background-color: #f8f9fa;
+}
+
+.virtual-list-item:active {
+  background-color: #e9ecef;
+}
+
+/* Performance optimizations */
+.virtual-scroller * {
+  box-sizing: border-box;
+}
+
+.virtual-scroller-items {
+  contain: layout style paint;
+}
+
+.virtual-scroller-item {
+  contain: layout style;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .virtual-scroller {
+    border-radius: 4px;
+  }
+
+  .virtual-list-item {
+    padding: 8px 12px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .virtual-scroller {
+    border-color: #000;
+  }
+
+  .virtual-scroller-item {
+    border-bottom-color: #000;
+  }
+
+  .virtual-scroller-item:hover {
+    background-color: #000;
+    color: #fff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .virtual-scroller-content {
+    scroll-behavior: auto;
+  }
+
+  .virtual-scroller-item {
+    transition: none;
+  }
+}
+
+/* Loading states */
+.virtual-scroller.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.virtual-scroller.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

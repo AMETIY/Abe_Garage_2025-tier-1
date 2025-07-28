@@ -1,0 +1,45 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "analyze": "vite build --mode analyze",
+    "bundle-report": "npm run build && npx vite-bundle-analyzer dist",
+    "performance-test": "npm run build && lighthouse http://localhost:4173 --output html --output-path ./lighthouse-report.html",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.5",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.487.0",
+    "react": "^19.1.0",
+    "react-bootstrap": "^2.10.9",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
+    "react-router": "^7.4.1",
+    "react-router-dom": "^7.4.1",
+    "react-spinners": "^0.16.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "jsdom": "^26.1.0",
+    "vite": "^6.2.0",
+    "vitest": "^3.2.4"
+  }
+}

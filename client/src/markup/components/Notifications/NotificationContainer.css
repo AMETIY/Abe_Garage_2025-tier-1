@@ -1,0 +1,240 @@
+/* Notification Container Styles */
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Individual Notification Styles */
+.notification {
+  margin-bottom: 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease-out;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  background: white;
+  border-left: 4px solid;
+}
+
+.notification-icon {
+  margin-right: 12px;
+  font-size: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.notification-message {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+  word-wrap: break-word;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  margin-left: 12px;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.notification-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+/* Notification Type Styles */
+.notification-success .notification-content {
+  border-left-color: #28a745;
+}
+
+.notification-success .notification-icon {
+  color: #28a745;
+}
+
+.notification-error .notification-content {
+  border-left-color: #dc3545;
+}
+
+.notification-error .notification-icon {
+  color: #dc3545;
+}
+
+.notification-warning .notification-content {
+  border-left-color: #ffc107;
+}
+
+.notification-warning .notification-icon {
+  color: #ffc107;
+}
+
+.notification-info .notification-content {
+  border-left-color: #17a2b8;
+}
+
+.notification-info .notification-icon {
+  color: #17a2b8;
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .notification-content {
+    padding: 12px;
+  }
+
+  .notification-message {
+    font-size: 13px;
+  }
+}
+
+/* Error Boundary Styles */
+.error-boundary-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 20px;
+}
+
+.error-boundary-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 30px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.error-icon {
+  font-size: 48px;
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.error-boundary-content h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.error-boundary-content p {
+  color: #666;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.error-actions .theme-btn {
+  margin: 5px;
+}
+
+.error-details {
+  margin-top: 20px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+}
+
+.error-details summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.error-details pre {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Form Error Boundary Styles */
+.form-error-boundary {
+  margin: 20px 0;
+}
+
+.form-error-boundary .alert {
+  border-radius: 6px;
+}
+
+.form-error-boundary .error-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-error-boundary .error-header i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.form-error-boundary .error-actions {
+  margin-top: 15px;
+}
+
+.form-error-boundary .error-actions .btn {
+  margin-right: 10px;
+}
