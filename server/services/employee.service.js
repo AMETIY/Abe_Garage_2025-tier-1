@@ -1,0 +1,334 @@
+// Import database query function using ES6 named import syntax
+// Named imports are used when importing specific functions from a module
+import { query } from "../config/db.config.js";
+// Import bcrypt for password hashing using ES6 default import syntax
+import bcrypt from "bcrypt";
+// A function to check if employee exists in the database
+async function checkIfEmployeeExists(email) {
+  const sql = "SELECT * FROM employee WHERE employee_email = ? ";
+  const rows = await query(sql, [email]);
+  console.log(rows);
+  if (rows.length > 0) {
+    return true;
+  }
+  return false;
+}
+
+// A function to create a new employee
+async function createEmployee(employee) {
+  let createdEmployee = {};
+  try {
+    console.log("createEmployee input:", employee); // Debug log
+    // Generate a salt and hash the password
+    const salt = await bcrypt.genSalt(10);
+    // console.log("password - >", employee.employee_password);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(employee.employee_password, salt);
+    // Insert the email in to the employee table
+    const sql =
+      "INSERT INTO employee (employee_email, active_employee) VALUES (?, ?)";
+    const rows = await query(sql, [
+      employee.employee_email,
+      employee.active_employee,
+    ]);
+    console.log("employee table insert result:", rows); // Debug log
+    if (rows.affectedRows !== 1) {
+      return false;
+    }
+
+    // Get the employee id from the insert
+    const employee_id = rows.insertId;
+    // Insert the remaining data in to the employee_info, employee_pass, and employee_role tables
+    const sql2 =
+      "INSERT INTO employee_info (employee_id, employee_first_name, employee_last_name, employee_phone) VALUES (?, ?, ?, ?)";
+    const rows2 = await query(sql2, [
+      employee_id,
+      employee.employee_first_name,
+      employee.employee_last_name,
+      employee.employee_phone,
+    ]);
+    console.log("employee_info insert result:", rows2); // Debug log
+    const sql3 =
+      "INSERT INTO employee_pass (employee_id, employee_password_hashed) VALUES (?, ?)";
+    const rows3 = await query(sql3, [employee_id, hashedPassword]);
+    console.log("employee_pass insert result:", rows3); // Debug log
+    const sql4 =
+      "INSERT INTO employee_role (employee_id, company_role_id) VALUES (?, ?)";
+    const rows4 = await query(sql4, [employee_id, employee.company_role_id]);
+    console.log("employee_role insert result:", rows4); // Debug log
+    // construct to the employee object to return
+    createdEmployee = {
+      employee_id: employee_id,
+    };
+  } catch (err) {
+    console.log("createEmployee error:", err); // Debug log
+  }
+  // Return the employee object
+  return createdEmployee;
+}
+// A function to get employee by email
+async function getEmployeeByEmail(employee_email) {
+  const sql =
+    "SELECT * FROM employee INNER JOIN employee_info ON employee.employee_id = employee_info.employee_id INNER JOIN employee_pass ON employee.employee_id = employee_pass.employee_id INNER JOIN employee_role ON employee.employee_id = employee_role.employee_id WHERE employee.employee_email = ?";
+  const rows = await query(sql, [employee_email]);
+  return rows;
+}
+
+// A function to verify password
+async function verifyPassword(password, hashedPassword) {
+  try {
+    return await bcrypt.compare(password, hashedPassword);
+  } catch (error) {
+    console.error("Password verification error:", error);
+    return false;
+  }
+}
+// A function to get all employees with pagination support
+async function getAllEmployees(
+  page = 1,
+  limit = 10,
+  filters = {},
+  search = null
+) {
+  // Optimized base query with table aliases for better performance
+  let baseQuery = `
+    SELECT 
+      e.employee_id,
+      e.employee_email,
+      e.active_employee,
+      ei.employee_first_name,
+      ei.employee_last_name,
+      ei.employee_phone,
+      cr.company_role_name,
+      er.company_role_id
+    FROM employee e
+    INNER JOIN employee_info ei ON e.employee_id = ei.employee_id 
+    INNER JOIN employee_role er ON e.employee_id = er.employee_id 
+    INNER JOIN company_roles cr ON er.company_role_id = cr.company_role_id
+  `;
+
+  const conditions = [];
+  const queryParams = [];
+
+  // Apply filters with optimized conditions
+  if (filters.active !== undefined) {
+    conditions.push("e.active_employee = ?");
+    queryParams.push(filters.active);
+  }
+
+  if (filters.role_id) {
+    conditions.push("er.company_role_id = ?");
+    queryParams.push(filters.role_id);
+  }
+
+  // Apply search with optimized LIKE queries
+  if (search && search.term && search.fields.length > 0) {
+    const searchConditions = [];
+    const searchTerm = `%${search.term}%`;
+
+    search.fields.forEach((field) => {
+      switch (field) {
+        case "name":
+          // Use CONCAT for better performance on name search
+          searchConditions.push(
+            "CONCAT(ei.employee_first_name, ' ', ei.employee_last_name) LIKE ?"
+          );
+          queryParams.push(searchTerm);
+          break;
+        case "email":
+          searchConditions.push("e.employee_email LIKE ?");
+          queryParams.push(searchTerm);
+          break;
+        case "phone":
+          searchConditions.push("ei.employee_phone LIKE ?");
+          queryParams.push(searchTerm);
+          break;
+      }
+    });
+
+    if (searchConditions.length > 0) {
+      conditions.push(`(${searchConditions.join(" OR ")})`);
+    }
+  }
+
+  // Add WHERE clause if conditions exist
+  if (conditions.length > 0) {
+    baseQuery += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  // Add ORDER BY with index-friendly ordering
+  baseQuery += " ORDER BY e.employee_id DESC";
+
+  // Calculate pagination
+  const offset = (page - 1) * limit;
+  const paginatedQuery = `${baseQuery} LIMIT ${limit} OFFSET ${offset}`;
+
+  // Optimized count query - avoid subquery when possible
+  let countQuery;
+  if (conditions.length === 0) {
+    // Simple count when no filters
+    countQuery = "SELECT COUNT(*) as total FROM employee e";
+  } else {
+    // Use the same conditions for count but without unnecessary JOINs if possible
+    countQuery = `
+      SELECT COUNT(*) as total 
+      FROM employee e
+      INNER JOIN employee_info ei ON e.employee_id = ei.employee_id 
+      INNER JOIN employee_role er ON e.employee_id = er.employee_id 
+      INNER JOIN company_roles cr ON er.company_role_id = cr.company_role_id
+    `;
+    if (conditions.length > 0) {
+      countQuery += ` WHERE ${conditions.join(" AND ")}`;
+    }
+  }
+
+  try {
+    // Execute both queries in parallel for better performance
+    const [employees, countResult] = await Promise.all([
+      query(paginatedQuery, queryParams),
+      query(countQuery, queryParams),
+    ]);
+
+    const totalItems = countResult[0]?.total || 0;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data: employees,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getAllEmployees:", error);
+    throw error;
+  }
+}
+
+// A function to get a single employee by ID
+async function getEmployeeById(employeeId) {
+  const sql = `
+    SELECT * FROM employee 
+    INNER JOIN employee_info ON employee.employee_id = employee_info.employee_id 
+    INNER JOIN employee_role ON employee.employee_id = employee_role.employee_id 
+    INNER JOIN company_roles ON employee_role.company_role_id = company_roles.company_role_id 
+    WHERE employee.employee_id = ? 
+    LIMIT 1
+  `;
+
+  const rows = await query(sql, [employeeId]);
+  return rows[0]; // Return the first row
+}
+
+// Service function to update an employee
+async function updateEmployee(employee) {
+  let updatedEmployee = {};
+  console.log("employee -> ", employee);
+  try {
+    // Update only if `active_employee` is provided
+    if (employee.active_employee_status !== undefined) {
+      const sql = `
+        UPDATE employee 
+        SET active_employee = ? 
+        WHERE employee_id = ?;
+      `;
+      const result = await query(sql, [
+        employee.active_employee_status,
+        employee.employee_id,
+      ]);
+      if (result.affectedRows !== 1) return false;
+    }
+
+    // Update fields in employee_info only if at least one is provided
+    const infoFields = [];
+    const infoValues = [];
+
+    if (employee.employee_first_name !== undefined) {
+      infoFields.push("employee_first_name = ?");
+      infoValues.push(employee.employee_first_name);
+    }
+    if (employee.employee_last_name !== undefined) {
+      infoFields.push("employee_last_name = ?");
+      infoValues.push(employee.employee_last_name);
+    }
+    if (employee.employee_phone_number !== undefined) {
+      infoFields.push("employee_phone = ?");
+      infoValues.push(employee.employee_phone_number);
+    }
+
+    if (infoFields.length > 0) {
+      const sql = `
+        UPDATE employee_info 
+        SET ${infoFields.join(", ")} 
+        WHERE employee_id = ?;
+      `;
+      infoValues.push(employee.employee_id);
+      await query(sql, infoValues);
+    }
+
+    // Update role if `company_role_id` is provided
+    if (employee.company_role_id !== undefined) {
+      const sql = `
+        UPDATE employee_role 
+        SET company_role_id = ? 
+        WHERE employee_id = ?;
+      `;
+      await query(sql, [employee.company_role_id, employee.employee_id]);
+    }
+
+    // Final updated object
+    updatedEmployee = {
+      employee_id: employee.employee_id,
+    };
+  } catch (err) {
+    console.error("Error updating employee:", err);
+    return false;
+  }
+
+  return updatedEmployee;
+}
+
+// Service function to delete an employee
+async function deleteEmployee(employee_id) {
+  try {
+    // Delete employee record from dependent tables first (to maintain referential integrity)
+    await query("DELETE FROM employee_role WHERE employee_id = ?", [
+      employee_id,
+    ]);
+    await query("DELETE FROM employee_info WHERE employee_id = ?", [
+      employee_id,
+    ]);
+    await query("DELETE FROM employee_pass WHERE employee_id = ?", [
+      employee_id,
+    ]);
+
+    // Finally, delete the employee from the main employee table
+    const result = await query("DELETE FROM employee WHERE employee_id = ?", [
+      employee_id,
+    ]);
+
+    return result.affectedRows > 0; // Returns true if deletion was successful
+  } catch (err) {
+    console.error("Error deleting employee:", err);
+    return false;
+  }
+}
+
+// Export all service functions using ES6 named export syntax
+// Named exports are ideal for service modules that provide multiple related functions
+// This allows consumers to import specific functions: import { createEmployee, getAllEmployees } from './employee.service.js'
+// or import all functions: import * as employeeService from './employee.service.js'
+export {
+  checkIfEmployeeExists,
+  createEmployee,
+  getEmployeeByEmail,
+  verifyPassword,
+  getAllEmployees,
+  getEmployeeById,
+  updateEmployee,
+  deleteEmployee,
+};
