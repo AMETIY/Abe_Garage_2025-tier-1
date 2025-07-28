@@ -1,0 +1,46 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Abe Garage",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
+    "start": "nodemon app.js",
+    "db:init": "node scripts/setup-database.js init",
+    "db:verify": "node scripts/setup-database.js verify",
+    "db:test": "node scripts/setup-database.js test",
+    "db:info": "node scripts/setup-database.js info",
+    "db:optimize": "node scripts/database-optimization.js optimize",
+    "db:indexes": "node scripts/database-optimization.js indexes",
+    "db:analyze": "node scripts/database-optimization.js analyze",
+    "db:stats": "node scripts/database-optimization.js stats",
+    "perf:baseline": "node scripts/performance-baseline.js baseline",
+    "perf:database": "node scripts/performance-baseline.js database",
+    "perf:api": "node scripts/performance-baseline.js api",
+    "perf:bottlenecks": "node scripts/performance-baseline.js bottlenecks"
+  },
+  "author": "Amity",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.1",
+    "mysql2": "^3.6.0",
+    "nodemailer": "^6.10.1",
+    "pg": "^8.16.3",
+    "sanitize": "^2.1.2"
+  },
+  "devDependencies": {
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.10",
+    "vitest": "^3.2.4"
+  }
+}
