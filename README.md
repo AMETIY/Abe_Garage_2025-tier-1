@@ -624,7 +624,7 @@ FRONTEND_URL=https://your-domain.com
 This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
-
+- Evangadi Family, Instructors & My Friends
 - **React Team** for the amazing framework
 - **Express.js** for the robust backend framework
 - **Bootstrap** for the responsive UI components
