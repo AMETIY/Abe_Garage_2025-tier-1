@@ -7,7 +7,10 @@
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run",
-    "start": "nodemon app.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "build": "echo 'No build step required for Node.js backend'",
+    "postinstall": "node scripts/setup-database.js verify || echo 'Database setup will be handled by deployment'",
     "db:init": "node scripts/setup-database.js init",
     "db:verify": "node scripts/setup-database.js verify",
     "db:test": "node scripts/setup-database.js test",
@@ -39,8 +42,15 @@
     "sanitize": "^2.1.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "eslint": "^9.32.0",
+    "globals": "^16.3.0",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.10",
     "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }
