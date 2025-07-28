@@ -6,13 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:production": "NODE_ENV=production vite build --mode production",
+    "build:analyze": "vite build --mode analyze",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
+    "preview:production": "vite build --mode production && vite preview",
     "analyze": "vite build --mode analyze",
     "bundle-report": "npm run build && npx vite-bundle-analyzer dist",
     "performance-test": "npm run build && lighthouse http://localhost:4173 --output html --output-path ./lighthouse-report.html",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf dist node_modules/.vite",
+    "postinstall": "echo 'Frontend dependencies installed successfully'",
+    "vercel-build": "npm run build:production"
   },
   "dependencies": {
     "bootstrap": "^5.3.5",
