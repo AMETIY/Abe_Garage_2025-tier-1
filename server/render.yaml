@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: abe-garage-backend
+    name: abe-garage-db
     env: node
     plan: starter
     buildCommand: npm install
@@ -13,28 +13,8 @@ services:
         value: 10000
       - key: DB_TYPE
         value: postgresql
-      - key: DB_HOST
-        fromDatabase:
-          name: abe-garage-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: abe-garage-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: abe-garage-db
-          property: database
-      - key: DB_USER
-        fromDatabase:
-          name: abe-garage-db
-          property: user
-      - key: DB_PASS
-        fromDatabase:
-          name: abe-garage-db
-          property: password
       - key: FRONTEND_URL
-        value: https://abe-garage-frontend.vercel.app
+        value: http://localhost:5173
       - key: JWT_SECRET
         generateValue: true
       - key: DB_POOL_SIZE
@@ -43,9 +23,3 @@ services:
         value: 2
       - key: SLOW_QUERY_THRESHOLD
         value: 1000
-
-databases:
-  - name: abe-garage-db
-    databaseName: abe_garage
-    user: abe_garage_user
-    plan: starter
