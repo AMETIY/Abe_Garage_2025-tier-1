@@ -15,7 +15,7 @@ function AddNewCustomer() {
   const [firstNameRequired, setFirstNameRequired] = useState("");
 
   const [serverError, setServerError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] = useState(false);
 
   // Create a variable to hold the user's token
   let loggedInEmployeeToken = "";
@@ -24,6 +24,13 @@ function AddNewCustomer() {
   if (employee && employee.employee_token) {
     loggedInEmployeeToken = employee.employee_token;
   }
+
+  // Clear server errors when user starts typing
+  const clearServerError = () => {
+    if (serverError) {
+      setServerError("");
+    }
+  };
 
   const handleSubmit = (e) => {
     // Prevent the default behavior of the form
@@ -70,33 +77,38 @@ function AddNewCustomer() {
       loggedInEmployeeToken
     );
     newcustomer
-      .then((response) => response.json())
-      .then((data) => {
-        // console.log(data);
-        // If Error is returned from the API server, set the error message
-        if (data.error) {
-          setServerError(data.error);
-        } else {
-          // Handle successful response
-          setSuccess(true);
-          setServerError("");
-          // Redirect to the customers page after 2 seconds
-          // For now, just redirect to the home page
-          setTimeout(() => {
-            window.location.href = "/admin/customers";
-            // window.location.href = '/';
-          }, 2000);
+      .then((response) => {
+        if (!response.ok) {
+          // Handle HTTP error responses
+          return response.json().then((errorData) => {
+            throw new Error(
+              errorData.error || `HTTP error! status: ${response.status}`
+            );
+          });
         }
+        return response.json();
+      })
+      .then((data) => {
+        // Handle successful response
+        setSuccess(true);
+        setServerError("");
+        // Clear form fields
+        setEmail("");
+        setFirstName("");
+        setLastName("");
+        setPhoneNumber("");
+        // Redirect to the customers page after 2 seconds
+        setTimeout(() => {
+          window.location.href = "/admin/customers";
+        }, 2000);
       })
       // Handle Catch
       .catch((error) => {
-        const resMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-        setServerError(resMessage);
+        console.error("Customer creation error:", error);
+        setServerError(
+          error.message || "An error occurred while creating the customer"
+        );
+        setSuccess(false);
       });
   };
 
@@ -120,20 +132,17 @@ function AddNewCustomer() {
                       )}
                       {success && (
                         <div className="success-message" role="alert">
-                          C
-                          {serverError && (
-                            <div className="validation-error" role="alert">
-                              {serverError}
-                            </div>
-                          )}
-                          ustomer added successfully
+                          Customer added successfully! Redirecting...
                         </div>
                       )}
                       <input
                         type="email"
                         name="customer_email"
                         value={customer_email}
-                        onChange={(event) => setEmail(event.target.value)}
+                        onChange={(event) => {
+                          setEmail(event.target.value);
+                          clearServerError();
+                        }}
                         placeholder="customer email"
                       />
                       {emailError && (
@@ -147,7 +156,10 @@ function AddNewCustomer() {
                         type="text"
                         name="customer_first_name"
                         value={customer_first_name}
-                        onChange={(event) => setFirstName(event.target.value)}
+                        onChange={(event) => {
+                          setFirstName(event.target.value);
+                          clearServerError();
+                        }}
                         placeholder="customer first name"
                       />
                       {firstNameRequired && (
