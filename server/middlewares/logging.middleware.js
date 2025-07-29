@@ -140,9 +140,11 @@ export const requestLogger = (options = {}) => {
       logData.headers = sanitizeLogData(req.headers);
     }
 
-    // Log the request
-    const logMessage = formatLogMessage("info", "Incoming Request", logData);
-    console.log("📥 REQUEST:", JSON.stringify(logMessage, null, 2));
+    // Log the request in development only
+    if (process.env.NODE_ENV === "development") {
+      const logMessage = formatLogMessage("info", "Incoming Request", logData);
+      console.log("📥 REQUEST:", JSON.stringify(logMessage, null, 2));
+    }
 
     next();
   };
@@ -218,10 +220,16 @@ export const responseLogger = (options = {}) => {
         level = "error";
       }
 
-      // Log the response
-      const logMessage = formatLogMessage(level, "Outgoing Response", logData);
-      const emoji = res.statusCode >= 400 ? "❌" : "✅";
-      console.log(`${emoji} RESPONSE:`, JSON.stringify(logMessage, null, 2));
+      // Log the response in development only
+      if (process.env.NODE_ENV === "development") {
+        const logMessage = formatLogMessage(
+          level,
+          "Outgoing Response",
+          logData
+        );
+        const emoji = res.statusCode >= 400 ? "❌" : "✅";
+        console.log(`${emoji} RESPONSE:`, JSON.stringify(logMessage, null, 2));
+      }
     }
 
     next();
@@ -312,10 +320,13 @@ export const performanceLogger = (options = {}) => {
         const emoji = duration >= slowRequestThreshold ? "🐌" : "⚡";
         const logMessage = formatLogMessage(level, "Performance Log", logData);
 
-        console.log(
-          `${emoji} PERFORMANCE:`,
-          JSON.stringify(logMessage, null, 2)
-        );
+        // Log performance in development only
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            `${emoji} PERFORMANCE:`,
+            JSON.stringify(logMessage, null, 2)
+          );
+        }
       }
 
       return originalEnd.apply(this, args);

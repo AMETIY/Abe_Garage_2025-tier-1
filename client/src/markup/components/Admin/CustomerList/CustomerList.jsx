@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Table, Button, Row, Col } from "react-bootstrap";
 import createCustomer from "../../../../services/customer.service";
 import { useAuth } from "../../../../Contexts/AuthContext";

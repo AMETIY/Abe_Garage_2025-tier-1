@@ -37,7 +37,7 @@ function EmployeeUpdatePage() {
         } else {
           setEmployeeData(data.data);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to fetch employee data");
       } finally {
         setIsLoading(false);

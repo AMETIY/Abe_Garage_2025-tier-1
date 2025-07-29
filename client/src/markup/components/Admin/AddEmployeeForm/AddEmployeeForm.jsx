@@ -11,7 +11,7 @@ import {
 } from "../../../../util/validation.js";
 import { VALIDATION_MESSAGES } from "../../../../util/validationConstants.js";
 
-function AddEmployeeForm(props) {
+function AddEmployeeForm() {
   // Form initial values
   const initialValues = {
     employee_email: "",

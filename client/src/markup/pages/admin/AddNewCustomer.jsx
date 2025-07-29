@@ -1,10 +1,10 @@
-import React from 'react';
-// Import the AdminMenu component 
-import AdminMenu from '../../components/Admin/AdminMenu/AdminMenu';
-// Import the AddNewCustomer component 
-import AddNewCustomer from '../../components/Admin/AddNewCustomer/AddNewCustomer';
+import React from "react";
+// Import the AdminMenu component
+import AdminMenu from "../../components/Admin/AdminMenu/AdminMenu";
+// Import the AddNewCustomer component
+import AddNewCustomer from "../../components/Admin/AddNewCustomer/AddNewCustomer";
 
-function AddNewCustomerPage(props) {
+function AddNewCustomerPage() {
   return (
     <div>
       <div className="container-fluid admin-pages">

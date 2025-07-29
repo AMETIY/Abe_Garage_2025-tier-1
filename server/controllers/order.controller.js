@@ -91,10 +91,6 @@ const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { order_status } = req.body;
-    // if(!isNaN(id)){
-    //   return res.status(400).json({error:"invalid id"})
-    // }
-    console.log(id, order_status);
 
     if (!String(order_status)) {
       return res

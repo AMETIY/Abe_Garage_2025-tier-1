@@ -6,7 +6,6 @@ const cleanupCorruptedAuth = () => {
     const employeeData = localStorage.getItem("employee");
 
     if (!employeeData) {
-      console.log("No auth data found in localStorage");
       return true; // No data is fine
     }
 
@@ -55,7 +54,7 @@ const cleanupCorruptedAuth = () => {
       return true;
     }
 
-    console.log("Auth data validation passed");
+    // Auth data validation passed
     return true;
   } catch (error) {
     console.error("Error during auth cleanup:", error);
@@ -67,8 +66,6 @@ const cleanupCorruptedAuth = () => {
 
 // Function to be called on app startup
 const initializeAuth = () => {
-  console.log("🔧 Initializing authentication...");
-
   // Only run cleanup once per session
   const cleanupKey = "auth_cleanup_done";
   const sessionCleanupDone = sessionStorage.getItem(cleanupKey);
@@ -77,18 +74,12 @@ const initializeAuth = () => {
     const isClean = cleanupCorruptedAuth();
     sessionStorage.setItem(cleanupKey, "true");
 
-    if (isClean) {
-      console.log("✅ Authentication initialization complete");
-    } else {
-      console.log("⚠️ Authentication data was cleaned up");
-    }
+    // Authentication initialization complete
 
     return isClean;
   } else {
-    console.log("✅ Authentication already initialized this session");
     return true;
   }
 };
-
 export { cleanupCorruptedAuth, initializeAuth };
 export default initializeAuth;

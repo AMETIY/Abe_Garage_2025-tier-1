@@ -1,11 +1,6 @@
-// services/vehicleService.js
-
-// Import database query function using ES6 named import syntax
 import { query } from "../config/db.config.js";
 
 const addNewVehicle = async (vehicleData) => {
-  console.log("typeof query (addNewVehicle):", typeof query);
-  console.log("addNewVehicle received vehicleData:", vehicleData);
   try {
     const {
       customer_id,
@@ -25,7 +20,7 @@ const addNewVehicle = async (vehicleData) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
-    const result = await query(sql, [
+    await query(sql, [
       customer_id,
       vehicle_year,
       vehicle_make,
@@ -36,7 +31,6 @@ const addNewVehicle = async (vehicleData) => {
       vehicle_serial,
       vehicle_color,
     ]);
-    console.log("addNewVehicle insert result:", result);
     return { success: true };
   } catch (error) {
     console.error("Error adding new vehicle:", error);
@@ -45,7 +39,6 @@ const addNewVehicle = async (vehicleData) => {
 };
 
 const getVehicleById = async (vehicleId) => {
-  console.log("typeof query (getVehicleById):", typeof query);
   try {
     const sql = `
        SELECT 
@@ -88,7 +81,6 @@ WHERE v.vehicle_id = ?;
 };
 
 const getVehiclesByCustomerId = async (customerId) => {
-  console.log("typeof query (getVehiclesByCustomerId):", typeof query);
   try {
     const sql = `
             SELECT 
@@ -116,7 +108,6 @@ const getVehiclesByCustomerId = async (customerId) => {
 };
 
 const updateVehicleInfo = async (vehicleId, updateFields) => {
-  console.log("typeof query (updateVehicleInfo):", typeof query);
   try {
     const validFields = [
       "vehicle_year",
@@ -129,8 +120,8 @@ const updateVehicleInfo = async (vehicleId, updateFields) => {
       "vehicle_color",
     ];
 
-    let setClause = [];
-    let values = [];
+    const setClause = [];
+    const values = [];
 
     Object.entries(updateFields).forEach(([key, value]) => {
       if (validFields.includes(key)) {
@@ -161,7 +152,6 @@ const updateVehicleInfo = async (vehicleId, updateFields) => {
 };
 
 const getAllVehicles = async () => {
-  console.log("typeof query (getAllVehicles):", typeof query);
   try {
     const sql = `SELECT * FROM customer_vehicle_info`;
     const vehicles = await query(sql);

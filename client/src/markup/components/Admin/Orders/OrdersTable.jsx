@@ -15,11 +15,8 @@ export default function OrdersTable() {
 
   const { employee } = useAuth();
   let loggedInEmployeeToken = null;
-  console.log("employee", employee);
   if (employee) {
     loggedInEmployeeToken = employee?.employee_token;
-  } else {
-    console.log("not token");
   }
 
   const fetchOrders = useCallback(() => {
@@ -32,7 +29,7 @@ export default function OrdersTable() {
 
       return;
     }
-    console.log("first");
+
     orderService
       .getAllOrders(token)
       .then((res) => res.json())
@@ -99,8 +96,6 @@ export default function OrdersTable() {
         }
       });
   };
-
-  console.log(orders);
 
   return (
     <>

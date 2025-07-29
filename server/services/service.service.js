@@ -1,4 +1,3 @@
-// Import database query function using ES6 named import syntax
 import { query } from "../config/db.config.js";
 
 // Function to add a new service
@@ -34,8 +33,8 @@ async function getServiceById(params) {
 // Function to update a service partially
 async function updateService(serviceId, serviceName, serviceDescription) {
   try {
-    let updateFields = [];
-    let values = [];
+    const updateFields = [];
+    const values = [];
 
     if (serviceName) {
       updateFields.push("service_name = ?");
@@ -76,7 +75,6 @@ async function deleteService(service_id) {
       );
     }
 
-    // console.log(result)
     // Delete the service from the common_services table
     const result = await query(
       "DELETE FROM common_services WHERE service_id = ?",

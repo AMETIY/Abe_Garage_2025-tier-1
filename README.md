@@ -75,6 +75,11 @@ Abe Garage is a comprehensive full-stack automotive service management system de
 - **Modern UI**: Bootstrap-based components with custom styling
 - **Code Splitting**: Lazy-loaded components for optimal performance
 - **Asset Optimization**: Image and font optimization for fast loading
+- **Shared Components**: Reusable UI components for consistent design
+  - **StatusToggleButton**: Active/inactive status toggle with color coding
+  - **PaginationComponent**: Configurable pagination with items per page
+  - **FormValidation**: Comprehensive form validation with real-time feedback
+  - **LoadingSpinner**: Consistent loading states across the application
 
 ### 🔧 Technical Features
 
@@ -130,6 +135,10 @@ client/
 │   │   │   ├── Admin/       # Admin dashboard components
 │   │   │   ├── Auth/        # Authentication components
 │   │   │   └── Common/      # Shared components
+│   │   │       ├── StatusToggleButton/    # Status toggle component
+│   │   │       ├── PaginationComponent/   # Pagination component
+│   │   │       ├── FormValidation/        # Form validation component
+│   │   │       └── LoadingSpinner/        # Loading spinner component
 │   │   └── pages/           # Page components
 │   │       ├── admin/       # Admin pages
 │   │       └── public/      # Public pages
@@ -138,6 +147,15 @@ client/
 │   ├── Contexts/            # React context providers
 │   └── assets/              # Static assets
 ```
+
+#### Shared Components
+
+The application includes several reusable components for consistent UI/UX:
+
+- **StatusToggleButton**: A toggle button for active/inactive status with green/red color coding
+- **PaginationComponent**: Responsive pagination with configurable items per page
+- **FormValidation**: Comprehensive form validation with real-time feedback and error handling
+- **LoadingSpinner**: Consistent loading states with accessibility support
 
 ### Backend Architecture
 
@@ -624,6 +642,7 @@ FRONTEND_URL=https://your-domain.com
 This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
+
 - Evangadi Family, Instructors & My Friends
 - **React Team** for the amazing framework
 - **Express.js** for the robust backend framework

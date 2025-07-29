@@ -1,5 +1,3 @@
-// Import database query function using ES6 named import syntax
-// Named imports are used when importing specific functions from a module
 import { query } from "../config/db.config.js";
 // Import bcrypt for password hashing using ES6 default import syntax
 import bcrypt from "bcrypt";
@@ -7,7 +5,6 @@ import bcrypt from "bcrypt";
 async function checkIfEmployeeExists(email) {
   const sql = "SELECT * FROM employee WHERE employee_email = ? ";
   const rows = await query(sql, [email]);
-  console.log(rows);
   if (rows.length > 0) {
     return true;
   }
@@ -18,10 +15,8 @@ async function checkIfEmployeeExists(email) {
 async function createEmployee(employee) {
   let createdEmployee = {};
   try {
-    console.log("createEmployee input:", employee); // Debug log
     // Generate a salt and hash the password
     const salt = await bcrypt.genSalt(10);
-    // console.log("password - >", employee.employee_password);
     // Hash the password
     const hashedPassword = await bcrypt.hash(employee.employee_password, salt);
     // Insert the email in to the employee table
@@ -31,7 +26,6 @@ async function createEmployee(employee) {
       employee.employee_email,
       employee.active_employee,
     ]);
-    console.log("employee table insert result:", rows); // Debug log
     if (rows.affectedRows !== 1) {
       return false;
     }
@@ -41,27 +35,24 @@ async function createEmployee(employee) {
     // Insert the remaining data in to the employee_info, employee_pass, and employee_role tables
     const sql2 =
       "INSERT INTO employee_info (employee_id, employee_first_name, employee_last_name, employee_phone) VALUES (?, ?, ?, ?)";
-    const rows2 = await query(sql2, [
+    await query(sql2, [
       employee_id,
       employee.employee_first_name,
       employee.employee_last_name,
       employee.employee_phone,
     ]);
-    console.log("employee_info insert result:", rows2); // Debug log
     const sql3 =
       "INSERT INTO employee_pass (employee_id, employee_password_hashed) VALUES (?, ?)";
-    const rows3 = await query(sql3, [employee_id, hashedPassword]);
-    console.log("employee_pass insert result:", rows3); // Debug log
+    await query(sql3, [employee_id, hashedPassword]);
     const sql4 =
       "INSERT INTO employee_role (employee_id, company_role_id) VALUES (?, ?)";
-    const rows4 = await query(sql4, [employee_id, employee.company_role_id]);
-    console.log("employee_role insert result:", rows4); // Debug log
+    await query(sql4, [employee_id, employee.company_role_id]);
     // construct to the employee object to return
     createdEmployee = {
       employee_id: employee_id,
     };
   } catch (err) {
-    console.log("createEmployee error:", err); // Debug log
+    console.error("Error creating employee:", err);
   }
   // Return the employee object
   return createdEmployee;
@@ -83,7 +74,37 @@ async function verifyPassword(password, hashedPassword) {
     return false;
   }
 }
-// A function to get all employees with pagination support
+/**
+ * Retrieves all employees with advanced pagination, filtering, and search capabilities
+ * 
+ * @param {number} page - Page number (1-based, default: 1)
+ * @param {number} limit - Number of items per page (default: 10)
+ * @param {object} filters - Filter criteria object
+ * @param {boolean} filters.active - Filter by active status (true/false)
+ * @param {number} filters.role_id - Filter by company role ID
+ * @param {object} search - Search configuration object
+ * @param {string} search.term - Search term to match against
+ * @param {string[]} search.fields - Fields to search in ['name', 'email', 'phone']
+ * 
+ * @returns {Promise<object>} Object containing:
+ *   - data: Array of employee objects with joined information
+ *   - pagination: Pagination metadata (currentPage, totalPages, totalItems, etc.)
+ * 
+ * @throws {Error} Database connection or query errors
+ * 
+ * @example
+ * // Get first page with 10 employees
+ * const result = await getAllEmployees(1, 10);
+ * 
+ * // Search for employees by name
+ * const searchResult = await getAllEmployees(1, 10, {}, {
+ *   term: 'john',
+ *   fields: ['name', 'email']
+ * });
+ * 
+ * // Filter active employees only
+ * const activeEmployees = await getAllEmployees(1, 10, { active: true });
+ */
 async function getAllEmployees(
   page = 1,
   limit = 10,
@@ -227,7 +248,6 @@ async function getEmployeeById(employeeId) {
 // Service function to update an employee
 async function updateEmployee(employee) {
   let updatedEmployee = {};
-  console.log("employee -> ", employee);
   try {
     // Update only if `active_employee` is provided
     if (employee.active_employee_status !== undefined) {

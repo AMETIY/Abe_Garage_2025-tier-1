@@ -51,7 +51,9 @@ class DatabaseMonitor {
       this.collectMetrics();
     }, 30000);
 
-    console.log("📊 Database monitoring started");
+    if (process.env.NODE_ENV === "development") {
+      console.log("📊 Database monitoring started");
+    }
   }
 
   /**
@@ -419,7 +421,9 @@ class DatabaseMonitor {
   stopMonitoring() {
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
-      console.log("📊 Database monitoring stopped");
+      if (process.env.NODE_ENV === "development") {
+        console.log("📊 Database monitoring stopped");
+      }
     }
   }
 
@@ -439,7 +443,9 @@ class DatabaseMonitor {
       errors: { connection: 0, query: 0, timeout: 0 },
     };
     this.queryHistory = [];
-    console.log("📊 Database metrics reset");
+    if (process.env.NODE_ENV === "development") {
+      console.log("📊 Database metrics reset");
+    }
   }
 }
 

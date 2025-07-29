@@ -1,4 +1,3 @@
-// Import database query function using ES6 named import syntax
 import { query } from "../config/db.config.js";
 
 const addOrder = async (orderData) => {
@@ -66,7 +65,7 @@ const addOrder = async (orderData) => {
       customer_email,
     };
   } catch (error) {
-    console.log("error", error);
+    console.error("Error adding order:", error);
     throw error;
   }
 };
@@ -114,54 +113,6 @@ ORDER BY o.order_id DESC;
   }
 };
 
-// const getOrderById = async (orderId) => {
-//   try {
-//     // Fetch order details with order status
-//     const orders = await query(
-//       `
-//       SELECT
-//         o.order_id,
-//         o.employee_id,
-//         o.customer_id,
-//         o.vehicle_id,
-//         oi.additional_request AS order_description,
-//         o.order_date,
-//         oi.estimated_completion_date,
-//         oi.completion_date,
-//         oi.additional_requests_completed AS order_completed,
-//         os.order_status AS status
-//       FROM orders o
-//       LEFT JOIN order_info oi ON o.order_id = oi.order_id
-//       LEFT JOIN order_status os ON o.order_id = os.order_id
-//       WHERE o.order_id = ?
-//       `,
-//       [orderId]
-//     );
-
-//     if (orders.length === 0) {
-//       return null; // No order found
-//     }
-
-//     // Fetch related services
-//     const services = await query(
-//       `
-//       SELECT service_id
-//       FROM order_services
-//       WHERE order_id = ?
-//       `,
-//       [orderId]
-//     );
-
-//     return {
-//       ...orders[0],
-//       order_services: services.map((s) => ({ service_id: s.service_id })),
-//     };
-//   } catch (error) {
-//     console.error("Error in getOrderById:", error);
-//     throw error;
-//   }
-// };
-
 const getOrderByHash = async (orderHash) => {
   try {
     // Fetch full order with customer and vehicle info using order_hash
@@ -204,7 +155,6 @@ const getOrderByHash = async (orderHash) => {
     );
 
     const order = orderResult; // assuming conn.query returns [rows, fields]
-    // console.log(order)
     if (!order) return null;
 
     // Get all services related to this order
@@ -232,14 +182,14 @@ const getOrderByHash = async (orderHash) => {
 
 const updateOrder = async (orderId, updateData) => {
   try {
-    let orderUpdateFields = [];
-    let orderValues = [];
+    const orderUpdateFields = [];
+    const orderValues = [];
 
-    let orderInfoUpdateFields = [];
-    let orderInfoValues = [];
+    const orderInfoUpdateFields = [];
+    const orderInfoValues = [];
 
-    let orderStatusUpdateFields = [];
-    let orderStatusValues = [];
+    const orderStatusUpdateFields = [];
+    const orderStatusValues = [];
     orderStatusUpdateFields;
     // Helper function to safely handle undefined values
     const safeValue = (value) => (value !== undefined ? value : null);
@@ -350,11 +300,6 @@ const updateOrderStatus = async (order_id, order_status) => {
   }
 };
 
-// await query(
-//   `UPDATE order_status SET ${orderStatusUpdateFields.join(", ")} WHERE order_id = ?`,
-//   orderStatusValues
-// );
-
 const deleteOrder = async (order_id) => {
   try {
     // Delete from order_services first due to foreign key constraints
@@ -385,10 +330,6 @@ const deleteOrder = async (order_id) => {
   }
 };
 
-// Export all service functions using ES6 named export syntax
-// Named exports are ideal for service modules that provide multiple related functions
-// This allows consumers to import specific functions: import { addOrder, getAllOrders } from './order.service.js'
-// or import all functions: import * as orderService from './order.service.js'
 export {
   addOrder,
   getAllOrders,

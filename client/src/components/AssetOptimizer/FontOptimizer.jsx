@@ -23,7 +23,7 @@ const FontOptimizer = ({
     // Only preload if explicitly requested and fonts exist
     if (preload) {
       // Use system fonts instead of problematic custom fonts
-      console.log("📝 Using system fonts for better performance");
+      console.info("📝 Using system fonts for better performance");
     }
   }, [preload]);
 

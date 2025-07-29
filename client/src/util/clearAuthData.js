@@ -4,7 +4,6 @@
 const clearAuthData = () => {
   try {
     localStorage.removeItem("employee");
-    console.log("Authentication data cleared from localStorage");
     return true;
   } catch (error) {
     console.error("Error clearing authentication data:", error);

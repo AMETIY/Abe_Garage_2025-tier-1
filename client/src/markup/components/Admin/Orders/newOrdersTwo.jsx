@@ -9,7 +9,6 @@ import { useNavigate } from "react-router";
 import Loader from "../../Loader/Loader";
 
 const NewOrdersTwo = ({ id }) => {
-  console.log("oder two page");
   const [customers, setCustomers] = useState([]);
   const [vehicles, setVehicle] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +19,6 @@ const NewOrdersTwo = ({ id }) => {
   const { employee } = useAuth();
 
   const handleRowClick = (customer_id, vehicle_id) => {
-    console.log("curmer", customer_id, vehicle_id);
     navigator(`/admin/ordersthree/${customer_id}/${vehicle_id}`);
   };
   useEffect(() => {
@@ -42,7 +40,6 @@ const NewOrdersTwo = ({ id }) => {
           }
         })
         .catch((err) => {
-          console.log(err);
           setIsLoading(false);
         });
 
@@ -51,7 +48,6 @@ const NewOrdersTwo = ({ id }) => {
         .getVehiclesByCustomer(loggedInEmployeeToken, id)
         .then((response) => response.json())
         .then((data) => {
-          console.log("here -> ", data);
           // If Error is returned from the API server, set the error message
           if (!data) {
             setIsLoading(false);
@@ -62,7 +58,6 @@ const NewOrdersTwo = ({ id }) => {
           }
         })
         .catch((err) => {
-          console.log(err);
           setIsLoading(false);
         });
     }

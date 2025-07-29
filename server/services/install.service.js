@@ -1,4 +1,3 @@
-// Import database query function using ES6 named import syntax
 import { query as conn } from "../config/db.config.js";
 // Import fs module using ES6 default import syntax for reading SQL files
 import fs from "fs";
@@ -6,10 +5,9 @@ import fs from "fs";
 async function install() {
   // Create a variable to hold the path to the sql file
   const queryfile = __dirname + "/sql/initial-queries.sql";
-  // console.log(queryfile);
   // Temporary variable, used to store all queries, the return message and the current query
-  let queries = [];
-  let finalMessage = {};
+  const queries = [];
+  const finalMessage = {};
   let templine = "";
   // Read the sql file
   const lines = await fs.readFileSync(queryfile, "utf-8").split("\n");
@@ -36,15 +34,9 @@ async function install() {
   //Loop through the queries and execute them one by one asynchronously
   for (let i = 0; i < queries.length; i++) {
     try {
-      console.log(
-        `Executing query ${i + 1}:`,
-        queries[i].substring(0, 50) + "..."
-      );
       const result = await conn.query(queries[i]);
-      console.log(`Query ${i + 1} executed successfully`);
     } catch (err) {
-      console.log(`Error in query ${i + 1}:`, err.message);
-      console.log(`Failed query:`, queries[i]);
+      console.error(`Error in query ${i + 1}:`, err.message);
       finalMessage.message = "Not all tables are created";
       finalMessage.error = err.message;
     }

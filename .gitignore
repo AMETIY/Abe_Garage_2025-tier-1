@@ -4,19 +4,21 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
+# Environment variables (ignore actual files with secrets)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+
+# But track environment templates and examples
+!.env.example
+!.env.*.example
+!.env.production.template
 
 # IDE and Editor files
 .vscode/
-.idea/
-.cursor/
-.kiro/
-.trae/
 *.swp
 *.swo
 *~
@@ -131,7 +133,10 @@ pids
 .yarn/install-state.gz
 .pnp.*
 
-# Optimization documentation files
+
+
+
+# ignore other optimization documentation files
 *_OPTIMIZATION.md
 *_IMPROVEMENTS.md
 PERFORMANCE.md
@@ -140,6 +145,10 @@ REACT_OPTIMIZATION.md
 ASSET_OPTIMIZATION.md
 PERFORMANCE_OPTIMIZATIONS.md
 DATABASE_IMPROVEMENTS.md
+DEPLOYMENT_GUIDE.md
+DEPLOYMENT_TROUBLESHOOTING.md
+ENVIRONMENT_GUIDELINES.md
+SECURITY_RECOMMENDATIONS.md
 
 # Analysis and development utilities
 analysis/
@@ -163,6 +172,8 @@ DEPLOYMENT_SETUP.md
 
 # Database scripts (development only)
 scripts/
+# But allow deployment scripts
+!scripts/deploy-setup.js
 
 # Test files
 **/__tests__/

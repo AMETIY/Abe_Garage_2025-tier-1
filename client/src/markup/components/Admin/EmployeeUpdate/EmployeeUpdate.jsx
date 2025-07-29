@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 // import employee.service.js
 // Import the useAuth hook
 import { useAuth } from "../../../../Contexts/AuthContext";
@@ -38,7 +38,6 @@ function EmployeeUpdate({ id }) {
     handleChange,
     handleBlur,
     validateAll,
-    reset,
     setValues,
   } = useFormValidation(initialValues, validationRules);
 

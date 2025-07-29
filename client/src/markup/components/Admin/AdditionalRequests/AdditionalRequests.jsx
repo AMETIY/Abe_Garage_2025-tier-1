@@ -91,7 +91,7 @@ const AdditionalRequests = ({ customer_id, vehicle_id }) => {
           setError(data.error);
         } else {
           // Handle successful response
-          console.log(data);
+          console.info(data);
           setPrice("");
           setServiceDescription("");
           setError("");

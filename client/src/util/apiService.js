@@ -68,21 +68,17 @@ class ApiService {
   async get(endpoint, options = {}) {
     const { headers = {}, ...fetchOptions } = options;
 
-    try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
-        method: "GET",
-        headers: { ...this.defaultHeaders, ...headers },
-        ...fetchOptions,
-      });
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      method: "GET",
+      headers: { ...this.defaultHeaders, ...headers },
+      ...fetchOptions,
+    });
 
-      return await this.handleResponse(response, {
-        method: "GET",
-        endpoint,
-        ...options.context,
-      });
-    } catch (error) {
-      throw error;
-    }
+    return await this.handleResponse(response, {
+      method: "GET",
+      endpoint,
+      ...options.context,
+    });
   }
 
   /**
@@ -95,23 +91,19 @@ class ApiService {
   async post(endpoint, data = {}, options = {}) {
     const { headers = {}, ...fetchOptions } = options;
 
-    try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
-        method: "POST",
-        headers: { ...this.defaultHeaders, ...headers },
-        body: JSON.stringify(data),
-        ...fetchOptions,
-      });
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      method: "POST",
+      headers: { ...this.defaultHeaders, ...headers },
+      body: JSON.stringify(data),
+      ...fetchOptions,
+    });
 
-      return await this.handleResponse(response, {
-        method: "POST",
-        endpoint,
-        data,
-        ...options.context,
-      });
-    } catch (error) {
-      throw error;
-    }
+    return await this.handleResponse(response, {
+      method: "POST",
+      endpoint,
+      data,
+      ...options.context,
+    });
   }
 
   /**
@@ -124,23 +116,19 @@ class ApiService {
   async put(endpoint, data = {}, options = {}) {
     const { headers = {}, ...fetchOptions } = options;
 
-    try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
-        method: "PUT",
-        headers: { ...this.defaultHeaders, ...headers },
-        body: JSON.stringify(data),
-        ...fetchOptions,
-      });
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      method: "PUT",
+      headers: { ...this.defaultHeaders, ...headers },
+      body: JSON.stringify(data),
+      ...fetchOptions,
+    });
 
-      return await this.handleResponse(response, {
-        method: "PUT",
-        endpoint,
-        data,
-        ...options.context,
-      });
-    } catch (error) {
-      throw error;
-    }
+    return await this.handleResponse(response, {
+      method: "PUT",
+      endpoint,
+      data,
+      ...options.context,
+    });
   }
 
   /**
@@ -152,21 +140,17 @@ class ApiService {
   async delete(endpoint, options = {}) {
     const { headers = {}, ...fetchOptions } = options;
 
-    try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
-        method: "DELETE",
-        headers: { ...this.defaultHeaders, ...headers },
-        ...fetchOptions,
-      });
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      method: "DELETE",
+      headers: { ...this.defaultHeaders, ...headers },
+      ...fetchOptions,
+    });
 
-      return await this.handleResponse(response, {
-        method: "DELETE",
-        endpoint,
-        ...options.context,
-      });
-    } catch (error) {
-      throw error;
-    }
+    return await this.handleResponse(response, {
+      method: "DELETE",
+      endpoint,
+      ...options.context,
+    });
   }
 
   /**

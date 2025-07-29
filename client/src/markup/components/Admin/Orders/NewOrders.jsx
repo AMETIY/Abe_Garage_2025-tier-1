@@ -37,7 +37,6 @@ const NewOrders = () => {
           loggedInEmployeeToken
         );
         const data = await response.json(); // This depends on how your service works
-        console.log("Fetched customers:", data?.customers);
 
         if (!data || data.error) {
           setIsLoading(false);
@@ -65,7 +64,6 @@ const NewOrders = () => {
         customer.customer_email?.toLowerCase().includes(lowerCaseTerm) ||
         customer.customer_phone_number?.toLowerCase().includes(lowerCaseTerm)
     );
-    console.log("customers", filtered);
     setFilteredCustomers(filtered);
   }, [searchTerm, customers]);
 

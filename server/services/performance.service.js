@@ -284,7 +284,9 @@ class QueryPerformanceTracker {
    */
   clearCache() {
     this.cache.clear();
-    console.log("🧹 Query cache cleared");
+    if (process.env.NODE_ENV === "development") {
+      console.log("🧹 Query cache cleared");
+    }
   }
 
   /**
@@ -292,7 +294,9 @@ class QueryPerformanceTracker {
    */
   resetStats() {
     this.queryStats.clear();
-    console.log("📊 Query statistics reset");
+    if (process.env.NODE_ENV === "development") {
+      console.log("📊 Query statistics reset");
+    }
   }
 }
 

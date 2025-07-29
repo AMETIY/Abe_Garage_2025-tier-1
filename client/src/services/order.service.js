@@ -1,7 +1,6 @@
 const api_url = import.meta.env.VITE_API_URL;
 
 const creatOrder = async (formData, loggedInEmployeeToken) => {
-  console.log("formdata->", formData);
   const requestOption = {
     method: "POST",
     headers: {

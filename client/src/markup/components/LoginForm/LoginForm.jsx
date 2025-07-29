@@ -33,7 +33,7 @@ function Login() {
       await navigator.clipboard.writeText(text);
       // You could add a toast notification here if desired
     } catch (err) {
-      console.error("Failed to copy text: ", err);
+      // Failed to copy text
     }
   };
 
@@ -75,23 +75,18 @@ function Login() {
       employee_email,
       employee_password,
     };
-    console.log(formData);
     // Call the service
     const loginEmployee = logIn(formData);
-    console.log(loginEmployee);
     loginEmployee
       .then((response) => response.json())
       .then((response) => {
-        console.log(response);
         if (response.status === "success") {
           // Save the user in the local storage
           if (response.data.employee_token) {
-            console.log("Storing employee data:", response.data);
             localStorage.setItem("employee", JSON.stringify(response.data));
 
             // Ensure localStorage write is complete before redirect
             setTimeout(() => {
-              console.log("Redirecting after successful login...");
               if (location.pathname === "/login") {
                 window.location.replace("/");
               } else {
@@ -109,7 +104,6 @@ function Login() {
         }
       })
       .catch((err) => {
-        console.log(err);
         setServerError("An error has occurred. Please try again later." + err);
         setIsLoading(false);
       });

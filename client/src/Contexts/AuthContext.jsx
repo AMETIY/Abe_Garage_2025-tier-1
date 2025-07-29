@@ -47,10 +47,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Retrieve the logged in user from local storage
     const loggedInEmployee = getAuth();
-    // console.log(loggedInEmployee);
     loggedInEmployee
       .then((response) => {
-        // console.log(response);
         if (response.employee_token) {
           setIsLogged(true);
           // 3 is the employee_role for admin

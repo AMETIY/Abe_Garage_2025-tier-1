@@ -9,7 +9,6 @@ const createService = async (formData, loggedInEmployeeToken) => {
     },
     body: JSON.stringify(formData),
   };
-  console.log(requestOptions);
   const response = await fetch(`${api_url}/api/service`, requestOptions);
   return response;
 };
@@ -18,7 +17,6 @@ const createService = async (formData, loggedInEmployeeToken) => {
 
 // A function to send get request to get all services
 const getAllServices = async (loggedInEmployeeToken) => {
-  // console.log(token);
   const requestOptions = {
     method: "GET",
     headers: {

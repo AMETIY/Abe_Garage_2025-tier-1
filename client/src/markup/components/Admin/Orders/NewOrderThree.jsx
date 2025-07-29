@@ -39,7 +39,6 @@ const NewOrdersThree = ({ customer_id, vehicle_id }) => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setIsLoading(false);
       });
 

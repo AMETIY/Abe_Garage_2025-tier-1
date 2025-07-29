@@ -4,7 +4,7 @@ import EmployeeForm from "../../components/Admin/Employee/EmployeeForm";
 // Import the AdminMenu component
 import AdminMenu from "../../components/Admin/AdminMenu/AdminMenu";
 
-function AddEmployee(props) {
+function AddEmployee() {
   return (
     <div>
       <div className="container-fluid admin-pages">

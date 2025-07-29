@@ -21,8 +21,6 @@ function ServiceListPage() {
   }, []);
 
   if (isLogged) {
-    console.log("Kebede");
-
     if (isAdmin) {
       return (
         <div>

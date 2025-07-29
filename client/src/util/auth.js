@@ -2,32 +2,23 @@
 const getAuth = async () => {
   try {
     const employeeData = localStorage.getItem("employee");
-    console.log("🔍 getAuth: Raw localStorage data:", employeeData);
 
     if (!employeeData) {
-      console.log("🔍 getAuth: No employee data found");
       return {};
     }
 
     let employee;
     try {
       employee = JSON.parse(employeeData);
-      console.log("🔍 getAuth: Parsed employee data:", employee);
     } catch (parseError) {
-      console.warn("❌ Invalid JSON in localStorage, clearing...", parseError);
+      // Invalid JSON in localStorage, clearing...
       localStorage.removeItem("employee");
       return {};
     }
 
     if (!employee || !employee.employee_token) {
-      console.log("🔍 getAuth: No employee object or token found");
       return {};
     }
-
-    console.log(
-      "🔍 getAuth: Token found:",
-      employee.employee_token.substring(0, 50) + "..."
-    );
 
     // Validate token format before decoding
     if (typeof employee.employee_token !== "string") {
@@ -118,5 +109,4 @@ const decodeTokenPayload = (token) => {
     };
   }
 };
-
 export default getAuth;

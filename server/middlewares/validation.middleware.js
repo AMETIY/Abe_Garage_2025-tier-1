@@ -17,7 +17,7 @@ export const sanitizeData = (data) => {
 
   if (typeof data === "string") {
     // Remove null bytes and other dangerous characters
-    let sanitized = data
+    const sanitized = data
       .replace(/\0/g, "") // Remove null bytes
       .replace(/[\x00-\x1F\x7F]/g, "") // Remove control characters
       .trim();

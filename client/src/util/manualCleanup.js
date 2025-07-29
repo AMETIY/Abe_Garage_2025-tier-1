@@ -23,8 +23,7 @@ const manualAuthCleanup = () => {
 
     keysToRemove.forEach((key) => localStorage.removeItem(key));
 
-    console.log("✅ Manual authentication cleanup completed");
-    console.log("🔄 Please refresh the page to see changes");
+    // Manual authentication cleanup completed
 
     return true;
   } catch (error) {

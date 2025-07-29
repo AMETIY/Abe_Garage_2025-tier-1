@@ -30,7 +30,7 @@ const FormValidation = ({
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [_isSubmitting, setIsSubmitting] = useState(false);
 
   // Validation rules engine
   const validateField = (fieldName, value, rules) => {
@@ -86,7 +86,7 @@ const FormValidation = ({
     if (
       value &&
       rules.phone &&
-      !/^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ""))
+      !/^[+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ""))
     ) {
       fieldErrors.push(
         `${rules.label || fieldName} must be a valid phone number`

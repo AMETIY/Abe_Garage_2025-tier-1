@@ -6,7 +6,26 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Database configuration factory
+/**
+ * Database configuration factory that supports dual database environments
+ *
+ * Automatically selects database type based on NODE_ENV:
+ * - Development: MySQL (default)
+ * - Production: PostgreSQL (default)
+ * - Can be overridden with DB_TYPE environment variable
+ *
+ * @returns {object} Database configuration object with connection parameters
+ *
+ * Environment Variables Required:
+ * - DB_HOST: Database host address
+ * - DB_PORT: Database port number
+ * - DB_NAME: Database name
+ * - DB_USER: Database username
+ * - DB_PASS: Database password
+ * - DB_TYPE: Override database type ('mysql' or 'postgresql')
+ * - DB_POOL_SIZE: Connection pool size (optional, default: 20)
+ * - DB_POOL_MIN: Minimum pool connections (optional, default: 2)
+ */
 const getDatabaseConfig = () => {
   const environment = process.env.NODE_ENV || "development";
   const dbType =
@@ -26,7 +45,7 @@ const getDatabaseConfig = () => {
       type: "postgresql",
       ...baseConfig,
       port: parseInt(baseConfig.port) || 5432,
-      ssl: environment === "production" ? { rejectUnauthorized: false } : false,
+
       connectionLimit: parseInt(process.env.DB_POOL_SIZE) || 20,
       // PostgreSQL specific optimizations
       statement_timeout: 30000, // 30 seconds
@@ -270,7 +289,7 @@ class DatabaseAdapter {
   logQueryError(sql, params, error, attempt = 1) {
     const errorContext = {
       timestamp: new Date().toISOString(),
-      database: this.config.type,
+      databaseType: this.config.type,
       attempt,
       sql: sql.replace(/\s+/g, " ").trim(),
       params: params.length > 0 ? params : undefined,

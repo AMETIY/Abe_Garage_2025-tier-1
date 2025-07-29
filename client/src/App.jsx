@@ -102,7 +102,7 @@ function App() {
       <ErrorBoundary name="AppErrorBoundary">
         <AssetPreloader
           criticalAssets={criticalAssets}
-          onLoadComplete={() => console.log("🎯 Critical assets loaded")}
+          onLoadComplete={() => console.info("🎯 Critical assets loaded")}
         >
           <FontOptimizer preload={true}>
             <Header />

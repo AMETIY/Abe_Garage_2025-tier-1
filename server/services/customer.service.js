@@ -1,5 +1,3 @@
-// Import database query function using ES6 named import syntax
-// Named imports are used when importing specific functions from a module
 import { query } from "../config/db.config.js";
 // Import bcrypt for password hashing using ES6 default import syntax
 import bcrypt from "bcrypt";
@@ -47,7 +45,33 @@ async function getCustomerByEmail(email) {
   }
 }
 
-// Function to fetch customers with pagination support
+/**
+ * Retrieves customers with pagination, filtering, and search functionality
+ * 
+ * @param {number} page - Page number (1-based, default: 1)
+ * @param {number} limit - Number of items per page (default: 10)
+ * @param {object} filters - Filter criteria object
+ * @param {boolean} filters.active - Filter by active customer status (true/false)
+ * @param {object} search - Search configuration object
+ * @param {string} search.term - Search term to match against
+ * @param {string[]} search.fields - Fields to search in ['name', 'email', 'phone']
+ * 
+ * @returns {Promise<object>} Object containing:
+ *   - data: Array of customer objects with contact and status information
+ *   - pagination: Pagination metadata (currentPage, totalPages, totalItems, etc.)
+ * 
+ * @throws {Error} Database connection or query errors
+ * 
+ * @example
+ * // Get active customers only
+ * const activeCustomers = await getCustomers(1, 10, { active: true });
+ * 
+ * // Search customers by email
+ * const emailSearch = await getCustomers(1, 10, {}, {
+ *   term: 'john@example.com',
+ *   fields: ['email']
+ * });
+ */
 async function getCustomers(page = 1, limit = 10, filters = {}, search = null) {
   try {
     let baseQuery = `
@@ -177,7 +201,6 @@ const getCustomerById = async (customerId) => {
 };
 
 const updateCustomer = async (customerId, updatedData) => {
-  console.log("updateCustomer -> ", updatedData);
   try {
     // Initialize an array to hold the dynamic SET fields and values
     const setClauses = [];

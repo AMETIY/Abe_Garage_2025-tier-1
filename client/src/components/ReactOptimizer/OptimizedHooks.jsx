@@ -94,7 +94,7 @@ export const usePerformanceMonitor = (componentName, dependencies = []) => {
 
     if (timeSinceLastRender < 1000) {
       // Only log if renders are frequent
-      console.log(
+      console.info(
         `🔄 ${componentName} rendered ${
           renderCountRef.current
         } times in ${timeSinceLastRender.toFixed(2)}ms`

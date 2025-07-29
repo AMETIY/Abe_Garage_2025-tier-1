@@ -1,6 +1,4 @@
 import nodemailer from "nodemailer";
-// Import dotenv and configure environment variables using ES6 syntax
-// Note: In ES6 modules, we import dotenv and call config() to load environment variables
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -31,17 +29,13 @@ const sendOrderEmail = async (toEmail, orderHash) => {
         <p>If you have any questions, feel free to reply to this email.</p>
         <hr style="margin: 20px 0;">
         <footer style="font-size: 12px; color: #888;">
-          Abe Garage • Addis Ababa, Ethiopia
+          Abe Garage •Calgary, Canada
         </footer>
       </div>
     `,
   };
 
-  // console.log("SEND->",process.env.EMAIL_PASS)
   await transporter.sendMail(mailOptions);
 };
 
-// Export the sendOrderEmail function using ES6 named export
-// Named export is appropriate here since this utility provides a specific service function
-// Usage: import { sendOrderEmail } from './emailService.js'
 export { sendOrderEmail };

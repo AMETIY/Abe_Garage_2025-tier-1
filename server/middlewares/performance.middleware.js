@@ -1,6 +1,19 @@
 import { asyncHandler } from "./errorHandler.middleware.js";
 
-// Performance monitoring middleware
+/**
+ * Performance monitoring middleware that tracks request response times
+ * and adds performance headers to responses
+ *
+ * Features:
+ * - Measures request duration from start to finish
+ * - Adds X-Response-Time header with duration in milliseconds
+ * - Adds X-Request-ID header with unique request identifier
+ * - Logs slow requests (>1000ms) as warnings
+ *
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next middleware function
+ */
 export const performanceMonitor = asyncHandler(async (req, res, next) => {
   const start = Date.now();
 
@@ -16,11 +29,10 @@ export const performanceMonitor = asyncHandler(async (req, res, next) => {
 
     // Log slow requests (over 1 second)
     if (duration > 1000) {
-      console.log(`🐌 SLOW REQUEST: ${req.method} ${req.path} - ${duration}ms`);
+      console.warn(
+        `🐌 SLOW REQUEST: ${req.method} ${req.path} - ${duration}ms`
+      );
     }
-
-    // Log performance metrics
-    console.log(`📊 PERFORMANCE: ${req.method} ${req.path} - ${duration}ms`);
 
     originalEnd.call(this, chunk, encoding);
   };
@@ -39,19 +51,16 @@ export const queryPerformanceMonitor = (query, params = []) => {
 
         // Log slow queries (over 500ms)
         if (duration > 500) {
-          console.log(
+          console.warn(
             `🐌 SLOW QUERY: ${duration}ms - ${query.substring(0, 100)}...`
           );
         }
-
-        // Log all query performance
-        console.log(`📊 QUERY PERFORMANCE: ${duration}ms`);
 
         resolve(result);
       })
       .catch((error) => {
         const duration = Date.now() - start;
-        console.log(`❌ QUERY ERROR: ${duration}ms - ${error.message}`);
+        console.error(`❌ QUERY ERROR: ${duration}ms - ${error.message}`);
         reject(error);
       });
   });
@@ -61,11 +70,14 @@ export const queryPerformanceMonitor = (query, params = []) => {
 export const memoryMonitor = () => {
   const used = process.memoryUsage();
 
-  console.log(`💾 MEMORY USAGE:
-    RSS: ${Math.round((used.rss / 1024 / 1024) * 100) / 100} MB
-    Heap Total: ${Math.round((used.heapTotal / 1024 / 1024) * 100) / 100} MB
-    Heap Used: ${Math.round((used.heapUsed / 1024 / 1024) * 100) / 100} MB
-    External: ${Math.round((used.external / 1024 / 1024) * 100) / 100} MB`);
+  // Memory monitoring can be enabled in development if needed
+  if (process.env.NODE_ENV === "development") {
+    console.log(`💾 MEMORY USAGE:
+      RSS: ${Math.round((used.rss / 1024 / 1024) * 100) / 100} MB
+      Heap Total: ${Math.round((used.heapTotal / 1024 / 1024) * 100) / 100} MB
+      Heap Used: ${Math.round((used.heapUsed / 1024 / 1024) * 100) / 100} MB
+      External: ${Math.round((used.external / 1024 / 1024) * 100) / 100} MB`);
+  }
 };
 
 // Generate unique request ID
@@ -83,7 +95,6 @@ export const cacheMiddleware = (key, ttl = CACHE_TTL) => {
     const cached = cache.get(cacheKey);
 
     if (cached && Date.now() - cached.timestamp < ttl) {
-      console.log(`⚡ CACHE HIT: ${cacheKey}`);
       return res.json(cached.data);
     }
 
@@ -94,7 +105,6 @@ export const cacheMiddleware = (key, ttl = CACHE_TTL) => {
         data,
         timestamp: Date.now(),
       });
-      console.log(`💾 CACHE SET: ${cacheKey}`);
       return originalJson.call(this, data);
     };
 
