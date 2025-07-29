@@ -3,7 +3,7 @@ import { query } from "../config/db.config.js";
 import bcrypt from "bcrypt";
 // A function to check if employee exists in the database
 async function checkIfEmployeeExists(email) {
-  const sql = "SELECT * FROM employee WHERE employee_email = ? ";
+  const sql = "SELECT * FROM company_employees WHERE employee_email = $1";
   const rows = await query(sql, [email]);
   if (rows.length > 0) {
     return true;
@@ -59,8 +59,22 @@ async function createEmployee(employee) {
 }
 // A function to get employee by email
 async function getEmployeeByEmail(employee_email) {
-  const sql =
-    "SELECT * FROM employee INNER JOIN employee_info ON employee.employee_id = employee_info.employee_id INNER JOIN employee_pass ON employee.employee_id = employee_pass.employee_id INNER JOIN employee_role ON employee.employee_id = employee_role.employee_id WHERE employee.employee_email = ?";
+  const sql = `
+    SELECT 
+      ce.employee_id,
+      ce.employee_email,
+      ce.employee_first_name,
+      ce.employee_last_name,
+      ce.employee_phone,
+      ce.employee_password_hashed,
+      ce.employee_added_date,
+      ce.company_role_id,
+      ce.active_employee,
+      cr.company_role_name
+    FROM company_employees ce
+    INNER JOIN company_roles cr ON ce.company_role_id = cr.company_role_id
+    WHERE ce.employee_email = $1 AND ce.active_employee = 1
+  `;
   const rows = await query(sql, [employee_email]);
   return rows;
 }
@@ -76,7 +90,7 @@ async function verifyPassword(password, hashedPassword) {
 }
 /**
  * Retrieves all employees with advanced pagination, filtering, and search capabilities
- * 
+ *
  * @param {number} page - Page number (1-based, default: 1)
  * @param {number} limit - Number of items per page (default: 10)
  * @param {object} filters - Filter criteria object
@@ -85,23 +99,23 @@ async function verifyPassword(password, hashedPassword) {
  * @param {object} search - Search configuration object
  * @param {string} search.term - Search term to match against
  * @param {string[]} search.fields - Fields to search in ['name', 'email', 'phone']
- * 
+ *
  * @returns {Promise<object>} Object containing:
  *   - data: Array of employee objects with joined information
  *   - pagination: Pagination metadata (currentPage, totalPages, totalItems, etc.)
- * 
+ *
  * @throws {Error} Database connection or query errors
- * 
+ *
  * @example
  * // Get first page with 10 employees
  * const result = await getAllEmployees(1, 10);
- * 
+ *
  * // Search for employees by name
  * const searchResult = await getAllEmployees(1, 10, {}, {
  *   term: 'john',
  *   fields: ['name', 'email']
  * });
- * 
+ *
  * // Filter active employees only
  * const activeEmployees = await getAllEmployees(1, 10, { active: true });
  */
