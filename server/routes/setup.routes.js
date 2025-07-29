@@ -368,6 +368,63 @@ router.post("/api/setup/fix-admin-password", async (req, res) => {
   }
 });
 
+// Test JWT and security functions
+router.get("/api/setup/test-jwt", async (req, res) => {
+  try {
+    // Import security functions
+    const {
+      generateAccessToken,
+      generateRefreshToken,
+      createAuditLog,
+      AUDIT_LEVELS,
+    } = await import("../utils/security.js");
+
+    // Test payload
+    const testPayload = {
+      employee_id: 1,
+      employee_email: "test@test.com",
+      employee_role: 3,
+      employee_first_name: "Test",
+    };
+
+    // Test JWT generation
+    const accessToken = generateAccessToken(testPayload);
+    const refreshToken = generateRefreshToken();
+
+    // Test audit log
+    const auditLog = createAuditLog(
+      "TEST_LOGIN",
+      1,
+      { email: "test@test.com" },
+      AUDIT_LEVELS.MEDIUM
+    );
+
+    res.json({
+      status: "success",
+      message: "JWT and security functions test completed",
+      timestamp: new Date().toISOString(),
+      results: {
+        accessTokenGenerated: !!accessToken,
+        refreshTokenGenerated: !!refreshToken,
+        auditLogCreated: !!auditLog,
+        jwtSecret: process.env.JWT_SECRET ? "SET" : "NOT_SET",
+        accessTokenPreview: accessToken
+          ? accessToken.substring(0, 50) + "..."
+          : null,
+      },
+    });
+  } catch (error) {
+    console.error("❌ JWT test failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "JWT test failed",
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 // Database status check endpoint
 router.get("/api/setup/check-database", async (req, res) => {
   try {
