@@ -82,7 +82,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://abe-garage-backend.onrender.com/api/$1"
+      "destination": "https://abe-garage-2025-tier-1.onrender.com/api/$1"
     }
   ]
 }
