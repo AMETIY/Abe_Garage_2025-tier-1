@@ -1,15 +1,8 @@
 {
   "version": 2,
   "name": "abe-garage-frontend",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist",
   "routes": [
     {
       "src": "/assets/(.*)",
@@ -66,19 +59,6 @@
       ]
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
-  },
-  "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
