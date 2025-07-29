@@ -8,19 +8,19 @@ async function addCustomer(email, phoneNumber, firstName, lastName, status) {
     // Generate a hashed value for customer security
     const customerHash = await bcrypt.hash(email, 10);
 
-    // Insert into `customer_identifier`
+    // Insert into `customer_identifier` and return the ID
     const customerResult = await query(
       `INSERT INTO customer_identifier (customer_email, customer_phone_number, customer_hash)
-       VALUES (?, ?, ?)`,
+       VALUES ($1, $2, $3) RETURNING customer_id`,
       [email, phoneNumber, customerHash]
     );
 
-    const customerId = customerResult.insertId; // Get newly inserted customer_id
+    const customerId = customerResult[0].customer_id; // Get newly inserted customer_id from PostgreSQL
 
     // Insert into `customer_info`
     await query(
       `INSERT INTO customer_info (customer_id, customer_first_name, customer_last_name, active_customer_status)
-       VALUES (?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4)`,
       [customerId, firstName, lastName, status]
     );
 
@@ -35,7 +35,7 @@ async function addCustomer(email, phoneNumber, firstName, lastName, status) {
 async function getCustomerByEmail(email) {
   try {
     const rows = await query(
-      "SELECT * FROM customer_identifier WHERE customer_email = ?",
+      "SELECT * FROM customer_identifier WHERE customer_email = $1",
       [email]
     );
     return rows.length > 0 ? rows[0] : null;
@@ -47,7 +47,7 @@ async function getCustomerByEmail(email) {
 
 /**
  * Retrieves customers with pagination, filtering, and search functionality
- * 
+ *
  * @param {number} page - Page number (1-based, default: 1)
  * @param {number} limit - Number of items per page (default: 10)
  * @param {object} filters - Filter criteria object
@@ -55,17 +55,17 @@ async function getCustomerByEmail(email) {
  * @param {object} search - Search configuration object
  * @param {string} search.term - Search term to match against
  * @param {string[]} search.fields - Fields to search in ['name', 'email', 'phone']
- * 
+ *
  * @returns {Promise<object>} Object containing:
  *   - data: Array of customer objects with contact and status information
  *   - pagination: Pagination metadata (currentPage, totalPages, totalItems, etc.)
- * 
+ *
  * @throws {Error} Database connection or query errors
- * 
+ *
  * @example
  * // Get active customers only
  * const activeCustomers = await getCustomers(1, 10, { active: true });
- * 
+ *
  * // Search customers by email
  * const emailSearch = await getCustomers(1, 10, {}, {
  *   term: 'john@example.com',
@@ -94,39 +94,46 @@ async function getCustomers(page = 1, limit = 10, filters = {}, search = null) {
 
     // Apply filters
     if (filters.active !== undefined) {
-      conditions.push("info.active_customer_status = ?");
+      conditions.push(
+        `info.active_customer_status = $${queryParams.length + 1}`
+      );
       queryParams.push(filters.active);
     }
 
     // Apply search
     if (search && search.term && search.fields.length > 0) {
-      const searchConditions = search.fields
-        .map((field) => {
-          switch (field) {
-            case "name":
-              return "(info.customer_first_name LIKE ? OR info.customer_last_name LIKE ?)";
-            case "email":
-              return "ci.customer_email LIKE ?";
-            case "phone":
-              return "ci.customer_phone_number LIKE ?";
-            default:
-              return null;
-          }
-        })
-        .filter(Boolean);
+      const searchConditions = [];
+
+      search.fields.forEach((field) => {
+        const searchTerm = `%${search.term}%`;
+        switch (field) {
+          case "name":
+            searchConditions.push(
+              `info.customer_first_name ILIKE $${queryParams.length + 1}`
+            );
+            queryParams.push(searchTerm);
+            searchConditions.push(
+              `info.customer_last_name ILIKE $${queryParams.length + 1}`
+            );
+            queryParams.push(searchTerm);
+            break;
+          case "email":
+            searchConditions.push(
+              `ci.customer_email ILIKE $${queryParams.length + 1}`
+            );
+            queryParams.push(searchTerm);
+            break;
+          case "phone":
+            searchConditions.push(
+              `ci.customer_phone_number ILIKE $${queryParams.length + 1}`
+            );
+            queryParams.push(searchTerm);
+            break;
+        }
+      });
 
       if (searchConditions.length > 0) {
         conditions.push(`(${searchConditions.join(" OR ")})`);
-
-        // Add search parameters for each condition
-        search.fields.forEach((field) => {
-          const searchTerm = `%${search.term}%`;
-          if (field === "name") {
-            queryParams.push(searchTerm, searchTerm); // For both first and last name
-          } else {
-            queryParams.push(searchTerm);
-          }
-        });
       }
     }
 
@@ -183,7 +190,7 @@ const getCustomerById = async (customerId) => {
         FROM customer_identifier ci
         INNER JOIN customer_info info 
           ON ci.customer_id = info.customer_id
-        WHERE ci.customer_id = ?;
+        WHERE ci.customer_id = $1;
       `;
 
     // Execute the query with the customerId as a parameter
@@ -205,30 +212,31 @@ const updateCustomer = async (customerId, updatedData) => {
     // Initialize an array to hold the dynamic SET fields and values
     const setClauses = [];
     const values = [];
+    let paramIndex = 1;
 
     // Check which fields are provided and add them to the query
     if (updatedData.customer_email) {
-      setClauses.push("ci.customer_email = ?");
+      setClauses.push(`ci.customer_email = $${paramIndex++}`);
       values.push(updatedData.customer_email);
     }
     if (updatedData.customer_phone_number) {
-      setClauses.push("ci.customer_phone_number = ?");
+      setClauses.push(`ci.customer_phone_number = $${paramIndex++}`);
       values.push(updatedData.customer_phone_number);
     }
     if (updatedData.customer_hash) {
-      setClauses.push("ci.customer_hash = ?");
+      setClauses.push(`ci.customer_hash = $${paramIndex++}`);
       values.push(updatedData.customer_hash);
     }
     if (updatedData.customer_first_name) {
-      setClauses.push("info.customer_first_name = ?");
+      setClauses.push(`info.customer_first_name = $${paramIndex++}`);
       values.push(updatedData.customer_first_name);
     }
     if (updatedData.customer_last_name) {
-      setClauses.push("info.customer_last_name = ?");
+      setClauses.push(`info.customer_last_name = $${paramIndex++}`);
       values.push(updatedData.customer_last_name);
     }
     if (updatedData.active_customer_status !== undefined) {
-      setClauses.push("info.active_customer_status = ?");
+      setClauses.push(`info.active_customer_status = $${paramIndex++}`);
       values.push(updatedData.active_customer_status);
     }
 
@@ -237,24 +245,58 @@ const updateCustomer = async (customerId, updatedData) => {
       throw new Error("No data to update");
     }
 
-    // Construct the final SQL
+    // PostgreSQL doesn't support INNER JOIN in UPDATE the same way as MySQL
+    // We need to use a different approach
     const sql = `
         UPDATE customer_identifier ci
-        INNER JOIN customer_info info 
-          ON ci.customer_id = info.customer_id
-        SET ${setClauses.join(", ")}
-        WHERE ci.customer_id = ?;
+        SET ${setClauses.filter((clause) => clause.includes("ci.")).join(", ")}
+        WHERE ci.customer_id = $${paramIndex};
       `;
 
     // Add customerId to the values array
     values.push(customerId);
 
-    // Execute the query
-    const result = await query(sql, values);
+    // Execute the customer_identifier update if there are any ci fields
+    const ciClauses = setClauses.filter((clause) => clause.includes("ci."));
+    if (ciClauses.length > 0) {
+      const ciSql = `
+        UPDATE customer_identifier
+        SET ${ciClauses.map((clause) => clause.replace("ci.", "")).join(", ")}
+        WHERE customer_id = $${values.length};
+      `;
+      await query(
+        ciSql,
+        values.slice(0, ciClauses.length).concat([customerId])
+      );
+    }
 
-    // Check if any rows were affected
-    if (result.affectedRows === 0) {
-      throw new Error("Customer not found or no changes made");
+    // Execute the customer_info update if there are any info fields
+    const infoClauses = setClauses.filter((clause) => clause.includes("info."));
+    if (infoClauses.length > 0) {
+      const infoValues = [];
+      let infoParamIndex = 1;
+      const infoSetClauses = [];
+
+      if (updatedData.customer_first_name) {
+        infoSetClauses.push(`customer_first_name = $${infoParamIndex++}`);
+        infoValues.push(updatedData.customer_first_name);
+      }
+      if (updatedData.customer_last_name) {
+        infoSetClauses.push(`customer_last_name = $${infoParamIndex++}`);
+        infoValues.push(updatedData.customer_last_name);
+      }
+      if (updatedData.active_customer_status !== undefined) {
+        infoSetClauses.push(`active_customer_status = $${infoParamIndex++}`);
+        infoValues.push(updatedData.active_customer_status);
+      }
+
+      const infoSql = `
+        UPDATE customer_info
+        SET ${infoSetClauses.join(", ")}
+        WHERE customer_id = $${infoParamIndex};
+      `;
+      infoValues.push(customerId);
+      await query(infoSql, infoValues);
     }
 
     return { success: true };
