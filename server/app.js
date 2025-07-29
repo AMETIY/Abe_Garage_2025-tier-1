@@ -24,7 +24,23 @@ import compression from "compression";
 
 // Set up the CORS options to allow requests from our front-end
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://abe-garage-frontend.vercel.app",
+    ].filter(Boolean); // Remove any undefined values
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   optionsSuccessStatus: 200,
   credentials: true, // Allow credentials
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
