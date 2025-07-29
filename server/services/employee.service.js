@@ -3,12 +3,10 @@ import { query } from "../config/db.config.js";
 import bcrypt from "bcrypt";
 // A function to check if employee exists in the database
 async function checkIfEmployeeExists(email) {
-  const sql = "SELECT * FROM company_employees WHERE employee_email = $1";
+  const sql =
+    "SELECT employee_id FROM company_employees WHERE employee_email = $1";
   const rows = await query(sql, [email]);
-  if (rows.length > 0) {
-    return true;
-  }
-  return false;
+  return rows.length > 0;
 }
 
 // A function to create a new employee
@@ -19,40 +17,45 @@ async function createEmployee(employee) {
     const salt = await bcrypt.genSalt(10);
     // Hash the password
     const hashedPassword = await bcrypt.hash(employee.employee_password, salt);
-    // Insert the email in to the employee table
-    const sql =
-      "INSERT INTO employee (employee_email, active_employee) VALUES (?, ?)";
+
+    // Insert all employee data into the single company_employees table
+    const sql = `
+      INSERT INTO company_employees (
+        employee_email, 
+        employee_first_name, 
+        employee_last_name, 
+        employee_phone, 
+        employee_password_hashed, 
+        company_role_id, 
+        active_employee
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      RETURNING employee_id
+    `;
+
     const rows = await query(sql, [
       employee.employee_email,
-      employee.active_employee,
-    ]);
-    if (rows.affectedRows !== 1) {
-      return false;
-    }
-
-    // Get the employee id from the insert
-    const employee_id = rows.insertId;
-    // Insert the remaining data in to the employee_info, employee_pass, and employee_role tables
-    const sql2 =
-      "INSERT INTO employee_info (employee_id, employee_first_name, employee_last_name, employee_phone) VALUES (?, ?, ?, ?)";
-    await query(sql2, [
-      employee_id,
       employee.employee_first_name,
       employee.employee_last_name,
       employee.employee_phone,
+      hashedPassword,
+      employee.company_role_id,
+      employee.active_employee || 1,
     ]);
-    const sql3 =
-      "INSERT INTO employee_pass (employee_id, employee_password_hashed) VALUES (?, ?)";
-    await query(sql3, [employee_id, hashedPassword]);
-    const sql4 =
-      "INSERT INTO employee_role (employee_id, company_role_id) VALUES (?, ?)";
-    await query(sql4, [employee_id, employee.company_role_id]);
-    // construct to the employee object to return
+
+    if (rows.length === 0) {
+      return false;
+    }
+
+    // Get the employee id from the PostgreSQL RETURNING clause
+    const employee_id = rows[0].employee_id;
+
+    // construct the employee object to return
     createdEmployee = {
       employee_id: employee_id,
     };
   } catch (err) {
     console.error("Error creating employee:", err);
+    throw err; // Re-throw to let controller handle the error
   }
   // Return the employee object
   return createdEmployee;
@@ -125,38 +128,38 @@ async function getAllEmployees(
   filters = {},
   search = null
 ) {
-  // Optimized base query with table aliases for better performance
+  // Simplified query using the single company_employees table
   let baseQuery = `
     SELECT 
-      e.employee_id,
-      e.employee_email,
-      e.active_employee,
-      ei.employee_first_name,
-      ei.employee_last_name,
-      ei.employee_phone,
-      cr.company_role_name,
-      er.company_role_id
-    FROM employee e
-    INNER JOIN employee_info ei ON e.employee_id = ei.employee_id 
-    INNER JOIN employee_role er ON e.employee_id = er.employee_id 
-    INNER JOIN company_roles cr ON er.company_role_id = cr.company_role_id
+      ce.employee_id,
+      ce.employee_email,
+      ce.employee_first_name,
+      ce.employee_last_name,
+      ce.employee_phone,
+      ce.employee_added_date,
+      ce.company_role_id,
+      ce.active_employee,
+      cr.company_role_name
+    FROM company_employees ce
+    INNER JOIN company_roles cr ON ce.company_role_id = cr.company_role_id
   `;
 
   const conditions = [];
   const queryParams = [];
+  let paramIndex = 1;
 
-  // Apply filters with optimized conditions
+  // Apply filters with PostgreSQL parameter syntax
   if (filters.active !== undefined) {
-    conditions.push("e.active_employee = ?");
+    conditions.push(`ce.active_employee = $${paramIndex++}`);
     queryParams.push(filters.active);
   }
 
   if (filters.role_id) {
-    conditions.push("er.company_role_id = ?");
+    conditions.push(`ce.company_role_id = $${paramIndex++}`);
     queryParams.push(filters.role_id);
   }
 
-  // Apply search with optimized LIKE queries
+  // Apply search with PostgreSQL ILIKE for case-insensitive search
   if (search && search.term && search.fields.length > 0) {
     const searchConditions = [];
     const searchTerm = `%${search.term}%`;
@@ -164,18 +167,18 @@ async function getAllEmployees(
     search.fields.forEach((field) => {
       switch (field) {
         case "name":
-          // Use CONCAT for better performance on name search
+          // Use PostgreSQL string concatenation
           searchConditions.push(
-            "CONCAT(ei.employee_first_name, ' ', ei.employee_last_name) LIKE ?"
+            `(ce.employee_first_name || ' ' || ce.employee_last_name) ILIKE $${paramIndex++}`
           );
           queryParams.push(searchTerm);
           break;
         case "email":
-          searchConditions.push("e.employee_email LIKE ?");
+          searchConditions.push(`ce.employee_email ILIKE $${paramIndex++}`);
           queryParams.push(searchTerm);
           break;
         case "phone":
-          searchConditions.push("ei.employee_phone LIKE ?");
+          searchConditions.push(`ce.employee_phone ILIKE $${paramIndex++}`);
           queryParams.push(searchTerm);
           break;
       }
@@ -191,30 +194,21 @@ async function getAllEmployees(
     baseQuery += ` WHERE ${conditions.join(" AND ")}`;
   }
 
-  // Add ORDER BY with index-friendly ordering
-  baseQuery += " ORDER BY e.employee_id DESC";
+  // Add ORDER BY
+  baseQuery += " ORDER BY ce.employee_id DESC";
 
   // Calculate pagination
   const offset = (page - 1) * limit;
   const paginatedQuery = `${baseQuery} LIMIT ${limit} OFFSET ${offset}`;
 
-  // Optimized count query - avoid subquery when possible
-  let countQuery;
-  if (conditions.length === 0) {
-    // Simple count when no filters
-    countQuery = "SELECT COUNT(*) as total FROM employee e";
-  } else {
-    // Use the same conditions for count but without unnecessary JOINs if possible
-    countQuery = `
-      SELECT COUNT(*) as total 
-      FROM employee e
-      INNER JOIN employee_info ei ON e.employee_id = ei.employee_id 
-      INNER JOIN employee_role er ON e.employee_id = er.employee_id 
-      INNER JOIN company_roles cr ON er.company_role_id = cr.company_role_id
-    `;
-    if (conditions.length > 0) {
-      countQuery += ` WHERE ${conditions.join(" AND ")}`;
-    }
+  // Count query
+  let countQuery = `
+    SELECT COUNT(*) as total 
+    FROM company_employees ce
+    INNER JOIN company_roles cr ON ce.company_role_id = cr.company_role_id
+  `;
+  if (conditions.length > 0) {
+    countQuery += ` WHERE ${conditions.join(" AND ")}`;
   }
 
   try {
@@ -224,7 +218,7 @@ async function getAllEmployees(
       query(countQuery, queryParams),
     ]);
 
-    const totalItems = countResult[0]?.total || 0;
+    const totalItems = parseInt(countResult[0]?.total || 0);
     const totalPages = Math.ceil(totalItems / limit);
 
     return {
@@ -247,11 +241,19 @@ async function getAllEmployees(
 // A function to get a single employee by ID
 async function getEmployeeById(employeeId) {
   const sql = `
-    SELECT * FROM employee 
-    INNER JOIN employee_info ON employee.employee_id = employee_info.employee_id 
-    INNER JOIN employee_role ON employee.employee_id = employee_role.employee_id 
-    INNER JOIN company_roles ON employee_role.company_role_id = company_roles.company_role_id 
-    WHERE employee.employee_id = ? 
+    SELECT 
+      ce.employee_id,
+      ce.employee_email,
+      ce.employee_first_name,
+      ce.employee_last_name,
+      ce.employee_phone,
+      ce.employee_added_date,
+      ce.company_role_id,
+      ce.active_employee,
+      cr.company_role_name
+    FROM company_employees ce
+    INNER JOIN company_roles cr ON ce.company_role_id = cr.company_role_id 
+    WHERE ce.employee_id = $1 
     LIMIT 1
   `;
 
@@ -263,55 +265,54 @@ async function getEmployeeById(employeeId) {
 async function updateEmployee(employee) {
   let updatedEmployee = {};
   try {
-    // Update only if `active_employee` is provided
+    // Build dynamic update query for the single company_employees table
+    const updateFields = [];
+    const updateValues = [];
+    let paramIndex = 1;
+
+    // Check which fields are provided and add them to the query
     if (employee.active_employee_status !== undefined) {
-      const sql = `
-        UPDATE employee 
-        SET active_employee = ? 
-        WHERE employee_id = ?;
-      `;
-      const result = await query(sql, [
-        employee.active_employee_status,
-        employee.employee_id,
-      ]);
-      if (result.affectedRows !== 1) return false;
+      updateFields.push(`active_employee = $${paramIndex++}`);
+      updateValues.push(employee.active_employee_status);
     }
-
-    // Update fields in employee_info only if at least one is provided
-    const infoFields = [];
-    const infoValues = [];
-
     if (employee.employee_first_name !== undefined) {
-      infoFields.push("employee_first_name = ?");
-      infoValues.push(employee.employee_first_name);
+      updateFields.push(`employee_first_name = $${paramIndex++}`);
+      updateValues.push(employee.employee_first_name);
     }
     if (employee.employee_last_name !== undefined) {
-      infoFields.push("employee_last_name = ?");
-      infoValues.push(employee.employee_last_name);
+      updateFields.push(`employee_last_name = $${paramIndex++}`);
+      updateValues.push(employee.employee_last_name);
     }
     if (employee.employee_phone_number !== undefined) {
-      infoFields.push("employee_phone = ?");
-      infoValues.push(employee.employee_phone_number);
+      updateFields.push(`employee_phone = $${paramIndex++}`);
+      updateValues.push(employee.employee_phone_number);
     }
-
-    if (infoFields.length > 0) {
-      const sql = `
-        UPDATE employee_info 
-        SET ${infoFields.join(", ")} 
-        WHERE employee_id = ?;
-      `;
-      infoValues.push(employee.employee_id);
-      await query(sql, infoValues);
-    }
-
-    // Update role if `company_role_id` is provided
     if (employee.company_role_id !== undefined) {
-      const sql = `
-        UPDATE employee_role 
-        SET company_role_id = ? 
-        WHERE employee_id = ?;
-      `;
-      await query(sql, [employee.company_role_id, employee.employee_id]);
+      updateFields.push(`company_role_id = $${paramIndex++}`);
+      updateValues.push(employee.company_role_id);
+    }
+
+    // If no fields were provided, throw an error
+    if (updateFields.length === 0) {
+      throw new Error("No data to update");
+    }
+
+    // Construct the final SQL
+    const sql = `
+      UPDATE company_employees 
+      SET ${updateFields.join(", ")} 
+      WHERE employee_id = $${paramIndex};
+    `;
+
+    // Add employee_id to the values array
+    updateValues.push(employee.employee_id);
+
+    // Execute the query
+    const result = await query(sql, updateValues);
+
+    // Check if any rows were affected (PostgreSQL uses rowCount)
+    if (result.rowCount === 0) {
+      throw new Error("Employee not found or no changes made");
     }
 
     // Final updated object
@@ -320,7 +321,7 @@ async function updateEmployee(employee) {
     };
   } catch (err) {
     console.error("Error updating employee:", err);
-    return false;
+    throw err;
   }
 
   return updatedEmployee;
@@ -329,23 +330,14 @@ async function updateEmployee(employee) {
 // Service function to delete an employee
 async function deleteEmployee(employee_id) {
   try {
-    // Delete employee record from dependent tables first (to maintain referential integrity)
-    await query("DELETE FROM employee_role WHERE employee_id = ?", [
-      employee_id,
-    ]);
-    await query("DELETE FROM employee_info WHERE employee_id = ?", [
-      employee_id,
-    ]);
-    await query("DELETE FROM employee_pass WHERE employee_id = ?", [
-      employee_id,
-    ]);
+    // With the single table structure, we just need to delete from company_employees
+    // Foreign key constraints will handle referential integrity
+    const result = await query(
+      "DELETE FROM company_employees WHERE employee_id = $1",
+      [employee_id]
+    );
 
-    // Finally, delete the employee from the main employee table
-    const result = await query("DELETE FROM employee WHERE employee_id = ?", [
-      employee_id,
-    ]);
-
-    return result.affectedRows > 0; // Returns true if deletion was successful
+    return result.rowCount > 0; // Returns true if deletion was successful
   } catch (err) {
     console.error("Error deleting employee:", err);
     return false;
