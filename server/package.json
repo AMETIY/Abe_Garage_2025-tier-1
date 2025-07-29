@@ -10,7 +10,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "build": "echo 'No build step required for Node.js backend'",
-    "postinstall": "node scripts/setup-database.js verify || echo 'Database setup will be handled by deployment'",
+    "postinstall": "echo 'Backend dependencies installed successfully'",
     "db:init": "node scripts/setup-database.js init",
     "db:verify": "node scripts/setup-database.js verify",
     "db:test": "node scripts/setup-database.js test",

@@ -43,13 +43,33 @@ router.use(performanceRoute);
 // Add the database performance routes to the main router
 router.use("/api/database", databasePerformanceRoutes);
 
+// Root route for API documentation
+router.get("/", (req, res) => {
+  res.json({
+    status: "success",
+    message: "Abe Garage API Server",
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: "/api/health",
+      employees: "/api/employees",
+      customers: "/api/customers",
+      services: "/api/services",
+      vehicles: "/api/vehicles",
+      orders: "/api/orders",
+      login: "/api/employee/login",
+    },
+    documentation: "Welcome to Abe Garage Management System API",
+  });
+});
+
 // Health check endpoint
 router.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     message: "Server is running",
     timestamp: new Date().toISOString(),
-    version: "1.0.0"
+    version: "1.0.0",
   });
 });
 
