@@ -32,16 +32,35 @@ export default function OrdersTable() {
 
     orderService
       .getAllOrders(token)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
+        console.log("Orders API response:", data);
         if (!data) {
+          setOrders([]);
+          setIsLoading(false);
+        } else if (Array.isArray(data)) {
+          setOrders(data);
+          setIsLoading(false);
+        } else if (data.orders && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+          setIsLoading(false);
+        } else if (data.data && Array.isArray(data.data)) {
+          setOrders(data.data);
           setIsLoading(false);
         } else {
-          setOrders(data);
+          console.error("Unexpected data format:", data);
+          setOrders([]);
           setIsLoading(false);
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Error fetching orders:", error);
+        setOrders([]);
         setIsLoading(false);
       });
   }, [employee]);
@@ -124,70 +143,78 @@ export default function OrdersTable() {
                 </tr>
               </thead>
               <tbody>
-                {orders?.map((order) => (
-                  <tr key={order.order_id}>
-                    <td className="fw-bold">{order.order_id}</td>
-                    <td>
-                      <div className="fw-medium">{order.customer_name}</div>
-                      <div className="text-muted small">
-                        {order.customer_email}
-                      </div>
-                      <div className="text-muted small">
-                        {order.customer_phone}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="fw-semibold">
-                        {order.vehicle_make} {order.vehicle_model}
-                      </div>
-                      <div className="text-muted">{order.vehicle_year}</div>
-                      <div className="text-muted">{order.plate_number}</div>
-                    </td>
-                    <td>{new Date(order.order_date).toLocaleDateString()}</td>
-                    <td>{order.received_by}</td>
-                    <td>
-                      <span
-                        className={`badge rounded-pill ${
-                          order.order_status === 2
-                            ? "bg-success text-white"
+                {orders && orders.length > 0 ? (
+                  orders.map((order) => (
+                    <tr key={order.order_id}>
+                      <td className="fw-bold">{order.order_id}</td>
+                      <td>
+                        <div className="fw-medium">{order.customer_name}</div>
+                        <div className="text-muted small">
+                          {order.customer_email}
+                        </div>
+                        <div className="text-muted small">
+                          {order.customer_phone}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="fw-semibold">
+                          {order.vehicle_make} {order.vehicle_model}
+                        </div>
+                        <div className="text-muted">{order.vehicle_year}</div>
+                        <div className="text-muted">{order.plate_number}</div>
+                      </td>
+                      <td>{new Date(order.order_date).toLocaleDateString()}</td>
+                      <td>{order.received_by}</td>
+                      <td>
+                        <span
+                          className={`badge rounded-pill ${
+                            order.order_status === 2
+                              ? "bg-success text-white"
+                              : order.order_status === 1
+                              ? "bg-warning text-dark"
+                              : "bg-dark text-white"
+                          }`}
+                        >
+                          {order.order_status === 2
+                            ? "Completed"
                             : order.order_status === 1
-                            ? "bg-warning text-dark"
-                            : "bg-dark text-white"
-                        }`}
-                      >
-                        {order.order_status === 2
-                          ? "Completed"
-                          : order.order_status === 1
-                          ? "In Progress"
-                          : "Received"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="d-flex">
-                        <a>
-                          <FaRegEdit
-                            className="text-dark cursor-pointer mr-2"
-                            size={18}
-                            onClick={() => handleEditClick(order)}
-                          />
-                        </a>
+                            ? "In Progress"
+                            : "Received"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="d-flex">
+                          <a>
+                            <FaRegEdit
+                              className="text-dark cursor-pointer mr-2"
+                              size={18}
+                              onClick={() => handleEditClick(order)}
+                            />
+                          </a>
 
-                        <a href={`/admin/order/${order.order_hash}`}>
-                          <ExternalLink
-                            className="text-secondary"
-                            style={{ width: 16, height: 16 }}
-                          />
-                        </a>
-                        <a onClick={() => handleDelete(order.order_id)}>
-                          <FaTrashAlt
-                            className="text-danger cursor-pointer ml-2"
-                            size={16}
-                          />
-                        </a>
-                      </div>
+                          <a href={`/admin/order/${order.order_hash}`}>
+                            <ExternalLink
+                              className="text-secondary"
+                              style={{ width: 16, height: 16 }}
+                            />
+                          </a>
+                          <a onClick={() => handleDelete(order.order_id)}>
+                            <FaTrashAlt
+                              className="text-danger cursor-pointer ml-2"
+                              size={16}
+                            />
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center">
+                      No orders found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
 
