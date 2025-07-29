@@ -32,7 +32,7 @@ const corsOptions = {
       process.env.FRONTEND_URL,
       "http://localhost:5173",
       "http://localhost:3000",
-      "https://abe-garage-frontend.vercel.app",
+      "https://abe-garage-2025-tier-1.vercel.app",
     ].filter(Boolean); // Remove any undefined values
 
     if (allowedOrigins.includes(origin)) {

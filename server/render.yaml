@@ -14,7 +14,7 @@ services:
       - key: DB_TYPE
         value: postgresql
       - key: FRONTEND_URL
-        value: http://localhost:5173
+        value: https://abe-garage-2025-tier-1.vercel.app
       - key: JWT_SECRET
         generateValue: true
       - key: DB_POOL_SIZE
