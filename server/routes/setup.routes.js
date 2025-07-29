@@ -106,7 +106,7 @@ router.get("/api/setup/init-database", async (req, res) => {
         employee_phone, employee_password_hashed, company_role_id, active_employee
       ) VALUES (
         'admin@admin.com', 'Admin', 'User', '123-456-7890',
-        '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2b$10$CwTycUXWue0Thq9StjUM0uJ8/jFZntZzdTnkHBmkH.fMM0rJ41mSi',
         3, 1
       ) ON CONFLICT (employee_email) DO NOTHING`,
 
