@@ -487,5 +487,171 @@ router.get("/api/setup/check-database", async (req, res) => {
   }
 });
 
+// View customers endpoint - for debugging
+router.get("/api/setup/view-customers", async (req, res) => {
+  try {
+    // Get all customers with their info
+    const customers = await dbAdapter.query(`
+      SELECT 
+        ci.customer_id,
+        ci.customer_email,
+        ci.customer_phone_number,
+        ci.customer_added_date,
+        ci.customer_hash,
+        info.customer_first_name,
+        info.customer_last_name,
+        info.active_customer_status
+      FROM customer_identifier ci
+      LEFT JOIN customer_info info ON ci.customer_id = info.customer_id
+      ORDER BY ci.customer_added_date DESC
+    `);
+
+    // Get customer count
+    const countResult = await dbAdapter.query(
+      "SELECT COUNT(*) as total FROM customer_identifier"
+    );
+    const totalCustomers = countResult[0].total;
+
+    res.json({
+      status: "success",
+      message: "Customer data retrieved successfully",
+      timestamp: new Date().toISOString(),
+      totalCustomers: parseInt(totalCustomers),
+      customers: customers,
+    });
+  } catch (error) {
+    console.error("❌ View customers failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to retrieve customer data",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// View all tables data endpoint - for debugging
+router.get("/api/setup/view-all-data", async (req, res) => {
+  try {
+    const data = {};
+
+    // Get customers
+    data.customers = await dbAdapter.query(`
+      SELECT 
+        ci.customer_id,
+        ci.customer_email,
+        ci.customer_phone_number,
+        ci.customer_added_date,
+        info.customer_first_name,
+        info.customer_last_name,
+        info.active_customer_status
+      FROM customer_identifier ci
+      LEFT JOIN customer_info info ON ci.customer_id = info.customer_id
+      ORDER BY ci.customer_added_date DESC
+      LIMIT 10
+    `);
+
+    // Get employees
+    data.employees = await dbAdapter.query(`
+      SELECT 
+        employee_id,
+        employee_email,
+        employee_first_name,
+        employee_last_name,
+        employee_phone,
+        company_role_id,
+        active_employee,
+        employee_added_date
+      FROM company_employees
+      ORDER BY employee_added_date DESC
+      LIMIT 10
+    `);
+
+    // Get orders
+    data.orders = await dbAdapter.query(`
+      SELECT 
+        order_id,
+        employee_id,
+        customer_id,
+        vehicle_id,
+        order_date,
+        order_status,
+        order_total_price
+      FROM orders
+      ORDER BY order_date DESC
+      LIMIT 10
+    `);
+
+    // Get services
+    data.services = await dbAdapter.query(`
+      SELECT * FROM common_services ORDER BY service_id
+    `);
+
+    // Get roles
+    data.roles = await dbAdapter.query(`
+      SELECT * FROM company_roles ORDER BY company_role_id
+    `);
+
+    // Get counts
+    const counts = {};
+    counts.customers = (
+      await dbAdapter.query("SELECT COUNT(*) as count FROM customer_identifier")
+    )[0].count;
+    counts.employees = (
+      await dbAdapter.query("SELECT COUNT(*) as count FROM company_employees")
+    )[0].count;
+    counts.orders = (
+      await dbAdapter.query("SELECT COUNT(*) as count FROM orders")
+    )[0].count;
+    counts.services = (
+      await dbAdapter.query("SELECT COUNT(*) as count FROM common_services")
+    )[0].count;
+
+    res.json({
+      status: "success",
+      message: "All data retrieved successfully",
+      timestamp: new Date().toISOString(),
+      counts: counts,
+      data: data,
+    });
+  } catch (error) {
+    console.error("❌ View all data failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to retrieve data",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Clear customers endpoint - for testing (use with caution!)
+router.delete("/api/setup/clear-customers", async (req, res) => {
+  try {
+    // Delete in proper order due to foreign key constraints
+    await dbAdapter.query(
+      "DELETE FROM orders WHERE customer_id IN (SELECT customer_id FROM customer_identifier)"
+    );
+    await dbAdapter.query("DELETE FROM customer_vehicle_info");
+    await dbAdapter.query("DELETE FROM customer_info");
+    await dbAdapter.query("DELETE FROM customer_identifier");
+
+    res.json({
+      status: "success",
+      message: "All customer data cleared successfully",
+      timestamp: new Date().toISOString(),
+      warning: "This action cannot be undone!",
+    });
+  } catch (error) {
+    console.error("❌ Clear customers failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to clear customer data",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 // Export the router using default export
 export default router;
