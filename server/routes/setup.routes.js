@@ -186,6 +186,138 @@ router.get("/api/setup/init-database", async (req, res) => {
   }
 });
 
+// Check admin user endpoint
+router.get("/api/setup/check-admin", async (req, res) => {
+  try {
+    // Check if admin user exists and get details
+    const adminCheck = await dbAdapter.query(
+      "SELECT employee_email, employee_first_name, employee_last_name, employee_password_hashed, company_role_id FROM company_employees WHERE employee_email = $1",
+      ["admin@admin.com"]
+    );
+
+    if (adminCheck.length === 0) {
+      return res.json({
+        status: "error",
+        message: "Admin user not found",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const admin = adminCheck[0];
+
+    res.json({
+      status: "success",
+      message: "Admin user found",
+      timestamp: new Date().toISOString(),
+      admin: {
+        email: admin.employee_email,
+        name: `${admin.employee_first_name} ${admin.employee_last_name}`,
+        role_id: admin.company_role_id,
+        password_hash_preview:
+          admin.employee_password_hashed.substring(0, 20) + "...",
+      },
+    });
+  } catch (error) {
+    console.error("❌ Admin check failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Admin check failed",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Test password verification endpoint
+router.post("/api/setup/test-password", async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        status: "error",
+        message: "Password is required",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Get admin user
+    const adminCheck = await dbAdapter.query(
+      "SELECT employee_password_hashed FROM company_employees WHERE employee_email = $1",
+      ["admin@admin.com"]
+    );
+
+    if (adminCheck.length === 0) {
+      return res.json({
+        status: "error",
+        message: "Admin user not found",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const admin = adminCheck[0];
+
+    // Import bcrypt for password verification
+    const bcrypt = await import("bcrypt");
+    const isValid = await bcrypt.compare(
+      password,
+      admin.employee_password_hashed
+    );
+
+    res.json({
+      status: "success",
+      message: "Password verification completed",
+      timestamp: new Date().toISOString(),
+      passwordMatch: isValid,
+      testedPassword: password,
+      hashPreview: admin.employee_password_hashed.substring(0, 20) + "...",
+    });
+  } catch (error) {
+    console.error("❌ Password test failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Password test failed",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Generate password hash endpoint
+router.post("/api/setup/generate-hash", async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        status: "error",
+        message: "Password is required",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Import bcrypt for password hashing
+    const bcrypt = await import("bcrypt");
+    const hash = await bcrypt.hash(password, 10);
+
+    res.json({
+      status: "success",
+      message: "Password hash generated",
+      timestamp: new Date().toISOString(),
+      password: password,
+      hash: hash,
+    });
+  } catch (error) {
+    console.error("❌ Hash generation failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Hash generation failed",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 // Database status check endpoint
 router.get("/api/setup/check-database", async (req, res) => {
   try {
