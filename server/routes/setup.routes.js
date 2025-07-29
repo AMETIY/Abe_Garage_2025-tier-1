@@ -318,6 +318,56 @@ router.post("/api/setup/generate-hash", async (req, res) => {
   }
 });
 
+// Fix admin password endpoint
+router.post("/api/setup/fix-admin-password", async (req, res) => {
+  try {
+    const correctHash =
+      "$2b$10$2BBiopvgyd/1LBXQVukdheRk9hs3e/ggHfE/fsReWH4wbd9FfXxZG";
+
+    // Update admin password with correct hash
+    const updateResult = await dbAdapter.query(
+      "UPDATE company_employees SET employee_password_hashed = $1 WHERE employee_email = $2",
+      [correctHash, "admin@admin.com"]
+    );
+
+    console.log("✅ Admin password updated successfully");
+
+    // Verify the update worked
+    const verifyResult = await dbAdapter.query(
+      "SELECT employee_email, employee_password_hashed FROM company_employees WHERE employee_email = $1",
+      ["admin@admin.com"]
+    );
+
+    if (verifyResult.length === 0) {
+      throw new Error("Admin user not found after update");
+    }
+
+    // Test the new hash
+    const bcrypt = await import("bcrypt");
+    const isValid = await bcrypt.compare(
+      "123456",
+      verifyResult[0].employee_password_hashed
+    );
+
+    res.json({
+      status: "success",
+      message: "Admin password fixed successfully",
+      timestamp: new Date().toISOString(),
+      passwordNowWorks: isValid,
+      newHashPreview: correctHash.substring(0, 20) + "...",
+      instructions: "You can now login with admin@admin.com / 123456",
+    });
+  } catch (error) {
+    console.error("❌ Admin password fix failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Admin password fix failed",
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 // Database status check endpoint
 router.get("/api/setup/check-database", async (req, res) => {
   try {
