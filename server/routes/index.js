@@ -30,21 +30,21 @@ router.use(installRouter);
 router.use(employeeRouter);
 // Add the login routes to the main router
 router.use(loginRoutes);
-// Add the auth routes to the main router
+// Adding the auth routes to the main router
 router.use(authRoutes);
-// Add the service routes to the main router
+// Adding the service routes to the main router
 router.use(serviceRoute);
-// Add the customer routes to the main router
+// Adding the customer routes to the main router
 router.use(customerRoute);
-// Add the vehicle routes to the main router
+// Adding the vehicle routes to the main router
 router.use(vehicleRoute);
-// Add the order routes to the main router
+// Adding the order routes to the main router
 router.use(orderRoute);
-// Add the performance routes to the main router
+// Adding the performance routes to the main router
 router.use(performanceRoute);
-// Add the database performance routes to the main router
+// Adding the database performance routes to the main router
 router.use("/api/database", databasePerformanceRoutes);
-// Add the setup routes to the main router
+// Adding the setup routes to the main router
 router.use(setupRoutes);
 
 // Root route for API documentation
