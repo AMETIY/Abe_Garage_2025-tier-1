@@ -22,6 +22,8 @@ import orderRoute from "./order.routes.js";
 import performanceRoute from "./performance.routes.js";
 // Import the database performance routes using default import with .js extension
 import databasePerformanceRoutes from "./database-performance.routes.js";
+// Import the setup routes using default import with .js extension
+import setupRoutes from "./setup.routes.js";
 // Add the install router to the main router
 router.use(installRouter);
 // Add the employee routes to the main router
@@ -42,6 +44,8 @@ router.use(orderRoute);
 router.use(performanceRoute);
 // Add the database performance routes to the main router
 router.use("/api/database", databasePerformanceRoutes);
+// Add the setup routes to the main router
+router.use(setupRoutes);
 
 // Root route for API documentation
 router.get("/", (req, res) => {
@@ -58,6 +62,10 @@ router.get("/", (req, res) => {
       vehicles: "/api/vehicles",
       orders: "/api/orders",
       login: "/api/employee/login",
+      setup: {
+        initDatabase: "/api/setup/init-database",
+        checkDatabase: "/api/setup/check-database",
+      },
     },
     documentation: "Welcome to Abe Garage Management System API",
   });
