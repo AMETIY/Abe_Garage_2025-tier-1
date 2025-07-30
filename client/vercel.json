@@ -41,6 +41,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://abe-garage-2025-tier-1.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
