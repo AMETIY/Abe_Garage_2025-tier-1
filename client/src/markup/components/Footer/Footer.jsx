@@ -41,7 +41,7 @@ function Footer() {
                   </div>
                   <div className="text">
                     Call us on : <br />
-                    <strong>+1 587 707 6257</strong>
+                    <strong><a href="tel:+1 587 707 6257">+1 587 707 6257</a></strong>
                   </div>
                 </div>
               </div>
