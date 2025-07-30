@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from "react";
-import {
-  FaBug,
-  FaTimes,
-  FaCopy,
-  FaDownload,
-  FaRefresh,
-  FaEye,
-  FaEyeSlash,
-} from "react-icons/fa";
+import { FaBug, FaTimes, FaCopy, FaDownload, FaSyncAlt } from "react-icons/fa";
 
 const DebugInfo = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("environment");
   const [isMinimized, setIsMinimized] = useState(true);
   const [debugData, setDebugData] = useState({});
 
   // Collect comprehensive debug information
   const collectDebugInfo = () => {
+    // Check if we're in browser environment
+    if (typeof window === "undefined") {
+      return {
+        environment: {
+          apiUrl: import.meta.env.VITE_API_URL || "Not set",
+          environment: import.meta.env.VITE_APP_ENVIRONMENT || "development",
+          mode: import.meta.env.MODE,
+          isDev: import.meta.env.DEV,
+          isProd: import.meta.env.PROD,
+          nodeEnv: import.meta.env.NODE_ENV,
+          debugMode: import.meta.env.VITE_ENABLE_DEBUG_MODE,
+          appName: import.meta.env.VITE_APP_NAME || "Abe Garage",
+          appVersion: import.meta.env.VITE_APP_VERSION || "1.0.0",
+        },
+      };
+    }
+
     const now = new Date();
     return {
       environment: {
@@ -34,63 +42,91 @@ const DebugInfo = () => {
         timestamp: now.toISOString(),
         localTime: now.toLocaleString(),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        language: navigator.language,
-        platform: navigator.platform,
-        cookieEnabled: navigator.cookieEnabled,
-        onlineStatus: navigator.onLine ? "Online" : "Offline",
-        userAgent: navigator.userAgent,
+        language: navigator?.language || "Unknown",
+        platform: navigator?.userAgentData?.platform || "Unknown",
+        cookieEnabled: navigator?.cookieEnabled || false,
+        onlineStatus: navigator?.onLine ? "Online" : "Offline",
+        userAgent: navigator?.userAgent || "Unknown",
       },
       page: {
-        url: window.location.href,
-        pathname: window.location.pathname,
-        search: window.location.search,
-        hash: window.location.hash,
-        referrer: document.referrer || "Direct",
-        title: document.title,
+        url: window?.location?.href || "Unknown",
+        pathname: window?.location?.pathname || "Unknown",
+        search: window?.location?.search || "",
+        hash: window?.location?.hash || "",
+        referrer: document?.referrer || "Direct",
+        title: document?.title || "Unknown",
       },
       performance: {
-        loadTime: performance.now().toFixed(2) + "ms",
-        memoryUsage: performance.memory
-          ? {
-              used:
-                (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2) +
-                "MB",
-              total:
-                (performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(2) +
-                "MB",
-              limit:
-                (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2) +
-                "MB",
-            }
-          : "Not available",
-        connectionType: navigator.connection?.effectiveType || "Unknown",
-        connectionSpeed: navigator.connection?.downlink
+        loadTime:
+          typeof performance !== "undefined"
+            ? performance.now().toFixed(2) + "ms"
+            : "Unknown",
+        memoryUsage:
+          typeof performance !== "undefined" && performance.memory
+            ? {
+                used:
+                  (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2) +
+                  "MB",
+                total:
+                  (performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(
+                    2
+                  ) + "MB",
+                limit:
+                  (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(
+                    2
+                  ) + "MB",
+              }
+            : "Not available",
+        connectionType: navigator?.connection?.effectiveType || "Unknown",
+        connectionSpeed: navigator?.connection?.downlink
           ? navigator.connection.downlink + "Mbps"
           : "Unknown",
       },
       screen: {
-        resolution: `${screen.width}x${screen.height}`,
-        availableSize: `${screen.availWidth}x${screen.availHeight}`,
-        colorDepth: screen.colorDepth + " bits",
-        pixelRatio: window.devicePixelRatio,
-        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        resolution:
+          typeof screen !== "undefined"
+            ? `${screen.width}x${screen.height}`
+            : "Unknown",
+        availableSize:
+          typeof screen !== "undefined"
+            ? `${screen.availWidth}x${screen.availHeight}`
+            : "Unknown",
+        colorDepth:
+          typeof screen !== "undefined"
+            ? screen.colorDepth + " bits"
+            : "Unknown",
+        pixelRatio:
+          typeof window !== "undefined" ? window.devicePixelRatio : "Unknown",
+        viewport:
+          typeof window !== "undefined"
+            ? `${window.innerWidth}x${window.innerHeight}`
+            : "Unknown",
       },
       storage: {
         localStorage: (() => {
           try {
-            return Object.keys(localStorage).length + " items";
+            return typeof localStorage !== "undefined"
+              ? Object.keys(localStorage).length + " items"
+              : "Not available";
           } catch {
             return "Not accessible";
           }
         })(),
         sessionStorage: (() => {
           try {
-            return Object.keys(sessionStorage).length + " items";
+            return typeof sessionStorage !== "undefined"
+              ? Object.keys(sessionStorage).length + " items"
+              : "Not available";
           } catch {
             return "Not accessible";
           }
         })(),
-        cookies: document.cookie ? "Enabled" : "Disabled/Empty",
+        cookies:
+          typeof document !== "undefined"
+            ? document.cookie
+              ? "Enabled"
+              : "Disabled/Empty"
+            : "Not available",
       },
     };
   };
@@ -109,12 +145,23 @@ const DebugInfo = () => {
     return null;
   }
 
+  // Don't render during SSR
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   const copyToClipboard = (data) => {
-    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-    alert("Debug info copied to clipboard!");
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+      alert("Debug info copied to clipboard!");
+    } else {
+      alert("Clipboard not available");
+    }
   };
 
   const downloadDebugInfo = () => {
+    if (typeof window === "undefined") return;
+
     const dataStr = JSON.stringify(debugData, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
@@ -270,7 +317,7 @@ const DebugInfo = () => {
           </span>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <FaRefresh
+          <FaSyncAlt
             size={14}
             style={{ cursor: "pointer" }}
             onClick={() => setDebugData(collectDebugInfo())}
