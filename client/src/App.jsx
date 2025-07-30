@@ -5,6 +5,7 @@ import { Routes, Route } from "react-router";
 // Import error handling components
 import ErrorBoundary from "./markup/components/ErrorBoundary/ErrorBoundary";
 import NotificationContainer from "./markup/components/Notifications/NotificationContainer";
+import DebugInfo from "./components/DebugInfo/DebugInfo";
 // Import the App Context Provider
 import { AppProvider } from "./Contexts/AppContext";
 
@@ -260,6 +261,7 @@ function App() {
             <Footer />
           </FontOptimizer>
         </AssetPreloader>
+        <DebugInfo />
       </ErrorBoundary>
     </AppProvider>
   );

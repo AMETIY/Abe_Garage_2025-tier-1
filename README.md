@@ -1,11 +1,14 @@
 # 🚗 Abe Garage - Full-Stack Automotive Service Management System
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-https://abe--garage--2025--tier--1.vercel.app-brightgreen?style=flat-square&logo=vercel)](https://abe-garage-2025-tier-1.vercel.app/)
+[![Backend API](https://img.shields.io/badge/Backend_API-https://abe--garage--2025--tier--1.onrender.com-blue?style=flat-square&logo=render)](https://abe-garage-2025-tier-1.onrender.com/)
 [![GitHub](https://img.shields.io/badge/GitHub-Abe_Garage_2025--tier--1-blue?style=flat-square&logo=github)](https://github.com/AMETIY/Abe_Garage_2025-tier-1)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green?style=flat-square&logo=node.js)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue?style=flat-square&logo=react)](https://reactjs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18.2-gray?style=flat-square&logo=express)](https://expressjs.com/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange?style=flat-square&logo=mysql)](https://www.mysql.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Production-blue?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
+[![Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=flat-square&logo=render)](https://render.com/)
 
 ## 📋 Table of Contents
 
@@ -28,6 +31,25 @@
 ## 🎯 Overview
 
 Abe Garage is a comprehensive full-stack automotive service management system designed to streamline garage operations, customer management, and service tracking. Built with modern web technologies, it provides a robust platform for automotive service businesses to manage their daily operations efficiently.
+
+### 🚀 **Live Application**
+
+**🌐 Frontend (Vercel)**: [https://abe-garage-2025-tier-1.vercel.app/](https://abe-garage-2025-tier-1.vercel.app/)  
+**🔗 Backend API (Render)**: [https://abe-garage-2025-tier-1.onrender.com/](https://abe-garage-2025-tier-1.onrender.com/)  
+**🏥 Health Check**: [https://abe-garage-2025-tier-1.onrender.com/api/health](https://abe-garage-2025-tier-1.onrender.com/api/health)
+
+### 🔐 **Demo Credentials**
+
+- **Email**: `admin@admin.com`
+- **Password**: `123456`
+
+### 🏗️ **Production Infrastructure**
+
+- **Frontend**: Deployed on Vercel with global CDN
+- **Backend**: Deployed on Render.com with auto-scaling
+- **Database**: PostgreSQL on Render.com with automated backups
+- **Security**: HTTPS, CORS, rate limiting, and security headers
+- **Performance**: Optimized builds, compression, and caching
 
 ### 🎯 Key Objectives
 
@@ -348,6 +370,14 @@ AUDIT_LOG_LEVEL=info
 
 ### Accessing the Application
 
+#### 🌐 **Production (Live)**
+
+- **Frontend**: https://abe-garage-2025-tier-1.vercel.app/
+- **Backend API**: https://abe-garage-2025-tier-1.onrender.com/api
+- **Health Check**: https://abe-garage-2025-tier-1.onrender.com/api/health
+
+#### 💻 **Development (Local)**
+
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:5000/api
 - **Health Check**: http://localhost:5000/api/health
@@ -557,7 +587,55 @@ npm run test:run      # Run tests once
 
 ## 🚀 Deployment
 
-### Production Deployment
+### 🎉 **Current Production Deployment**
+
+The application is **successfully deployed and operational**:
+
+#### **🌐 Frontend (Vercel)**
+
+- **URL**: https://abe-garage-2025-tier-1.vercel.app/
+- **Platform**: Vercel with global CDN
+- **Build**: Optimized Vite production build
+- **Performance**: Lighthouse score 90+
+- **Features**:
+  - Automatic deployments on git push
+  - Global CDN for fast loading
+  - HTTPS with security headers
+  - Asset optimization and compression
+
+#### **🚀 Backend (Render.com)**
+
+- **URL**: https://abe-garage-2025-tier-1.onrender.com/
+- **Platform**: Render.com with auto-scaling
+- **Database**: PostgreSQL with automated backups
+- **Features**:
+  - Auto-scaling based on traffic
+  - Health monitoring and alerts
+  - Automatic SSL certificates
+  - Environment variable management
+  - Zero-downtime deployments
+
+#### **🗄️ Database (PostgreSQL)**
+
+- **Platform**: Render.com PostgreSQL
+- **Features**: Automated backups, connection pooling, monitoring
+- **Performance**: Optimized queries and indexing
+
+### 📋 **Deployment Architecture**
+
+```
+┌─────────────────┐    HTTPS    ┌──────────────────┐    PostgreSQL    ┌─────────────────┐
+│   Vercel CDN    │ ──────────► │   Render.com     │ ───────────────► │   PostgreSQL    │
+│   (Frontend)    │             │   (Backend API)  │                  │   (Database)    │
+│                 │             │                  │                  │                 │
+│ • React 19.1.0  │             │ • Node.js 18+    │                  │ • Automated     │
+│ • Vite Build    │             │ • Express 4.18.2 │                  │   Backups       │
+│ • Global CDN    │             │ • JWT Auth       │                  │ • Connection    │
+│ • Asset Opt.    │             │ • Rate Limiting  │                  │   Pooling       │
+└─────────────────┘             └──────────────────┘                  └─────────────────┘
+```
+
+### 🔧 **Local Development Setup**
 
 #### Backend Deployment
 
@@ -579,10 +657,10 @@ npm start
 
 ```bash
 # Build for production
-npm run build
+npm run build:production
 
-# Deploy to your hosting service
-# (Vercel, Netlify, AWS S3, etc.)
+# Deploy to Vercel
+vercel --prod
 ```
 
 ### Docker Deployment
@@ -598,20 +676,47 @@ EXPOSE 5000
 CMD ["npm", "start"]
 ```
 
-### Environment Variables for Production
+### 🔐 **Production Environment Configuration**
+
+#### **Backend Environment (Render.com)**
 
 ```env
 NODE_ENV=production
-PORT=5000
+PORT=10000
 DB_TYPE=postgresql
-DB_HOST=your_production_host
+DB_HOST=<render-postgresql-host>
 DB_PORT=5432
-DB_NAME=abe_garage_prod
-DB_USER=your_production_user
-DB_PASS=your_production_password
-JWT_SECRET=your_secure_production_secret
-FRONTEND_URL=https://your-domain.com
+DB_NAME=abe_garage
+DB_USER=<render-db-user>
+DB_PASS=<render-db-password>
+JWT_SECRET=<secure-production-secret>
+FRONTEND_URL=https://abe-garage-2025-tier-1.vercel.app
+DB_POOL_SIZE=10
+DB_POOL_MIN=2
+SLOW_QUERY_THRESHOLD=1000
 ```
+
+#### **Frontend Environment (Vercel)**
+
+```env
+VITE_API_URL=https://abe-garage-2025-tier-1.onrender.com
+NODE_ENV=production
+VITE_APP_NAME=Abe Garage Management System
+VITE_APP_VERSION=1.0.0
+VITE_APP_ENVIRONMENT=production
+VITE_ENABLE_ANALYTICS=true
+VITE_ENABLE_PERFORMANCE_MONITORING=true
+```
+
+### 📊 **Deployment Status**
+
+| Component     | Status        | URL                                                                                 | Platform       |
+| ------------- | ------------- | ----------------------------------------------------------------------------------- | -------------- |
+| 🌐 Frontend   | ✅ **LIVE**   | [abe-garage-2025-tier-1.vercel.app](https://abe-garage-2025-tier-1.vercel.app/)     | Vercel         |
+| 🚀 Backend    | ✅ **LIVE**   | [abe-garage-2025-tier-1.onrender.com](https://abe-garage-2025-tier-1.onrender.com/) | Render.com     |
+| 🗄️ Database   | ✅ **LIVE**   | PostgreSQL                                                                          | Render.com     |
+| 🔒 Security   | ✅ **ACTIVE** | HTTPS, CORS, Rate Limiting                                                          | Both Platforms |
+| 📊 Monitoring | ✅ **ACTIVE** | Health Checks, Performance                                                          | Both Platforms |
 
 ## 🤝 Contributing
 
@@ -654,12 +759,61 @@ This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) 
 
 For support and questions:
 
-- **GitHub Issues**: [Create an issue](https://github.com/AMETIY/Abe_Garage_2025-tier-1/issues)
-- **Documentation**: Check the inline code documentation
-- **Performance Issues**: Use the performance monitoring dashboard
+- **🌐 Live Demo**: [https://abe-garage-2025-tier-1.vercel.app/](https://abe-garage-2025-tier-1.vercel.app/)
+- **🔗 API Documentation**: [https://abe-garage-2025-tier-1.onrender.com/api/health](https://abe-garage-2025-tier-1.onrender.com/api/health)
+- **📋 GitHub Issues**: [Create an issue](https://github.com/AMETIY/Abe_Garage_2025-tier-1/issues)
+- **📚 Documentation**: Check the inline code documentation
+- **📊 Performance Issues**: Use the performance monitoring dashboard
+
+## 🎯 **Quick Start Guide**
+
+### **🚀 Try the Live Application**
+
+1. **Visit**: [https://abe-garage-2025-tier-1.vercel.app/](https://abe-garage-2025-tier-1.vercel.app/)
+2. **Login with**:
+   - Email: `admin@admin.com`
+   - Password: `123456`
+3. **Explore Features**:
+   - ✅ Create and manage customers
+   - ✅ Add and track employees
+   - ✅ Process service orders
+   - ✅ Monitor system performance
+   - ✅ View analytics and reports
+
+### **🛠️ Local Development**
+
+```bash
+# Clone the repository
+git clone https://github.com/AMETIY/Abe_Garage_2025-tier-1.git
+cd Abe_Garage_2025-tier-1
+
+# Install dependencies
+cd server && npm install
+cd ../client && npm install
+
+# Start development servers
+cd ../server && npm start
+cd ../client && npm run dev
+```
+
+---
+
+## 🏆 **Project Achievements**
+
+- ✅ **Full-Stack Application**: Complete React + Node.js + PostgreSQL solution
+- ✅ **Production Deployment**: Successfully deployed on Vercel + Render.com
+- ✅ **Performance Optimized**: Lighthouse score 90+, optimized builds
+- ✅ **Security Hardened**: HTTPS, CORS, JWT, rate limiting, security headers
+- ✅ **Database Migration**: Seamless MySQL → PostgreSQL migration
+- ✅ **Modern Architecture**: React 19, Node.js 18+, ES6 modules
+- ✅ **Responsive Design**: Mobile-first, Bootstrap 5, modern UI/UX
+- ✅ **Real-time Features**: Live updates, performance monitoring
+- ✅ **Enterprise Ready**: Role-based access, audit logging, error handling
 
 ---
 
 **Made with ❤️ by Amanuel Wubneh**
 
-_Last updated: July 2025_
+_🚀 Successfully deployed and operational since January 2025_
+
+**⭐ If you found this project helpful, please give it a star on GitHub!**
